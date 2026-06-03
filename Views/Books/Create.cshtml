@@ -1,0 +1,228 @@
+@model BookBridge.Models.ViewModels.BookCreateViewModel
+@{
+    ViewData["Title"] = "List a Book";
+    bool isEdit = ViewBag.BookId != null;
+}
+
+<div class="page-wrap">
+    <div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:28px 0;">
+        <div class="container">
+            @if (isEdit)
+            {
+                <div class="mb-3">
+                    <a asp-controller="Dashboard" asp-action="MyBooks" class="text-decoration-none text-muted small d-inline-flex align-items-center gap-1 hover-primary" style="transition:var(--transition);font-weight:500;">
+                        <i class="bi bi-arrow-left"></i> Back to My Books
+                    </a>
+                </div>
+            }
+            <h1 style="font-family:var(--font-body);font-size:1.8rem;font-weight:600;margin-bottom:4px;">
+                @(isEdit ? "Edit Listing" : "List a Book")
+            </h1>
+            <p class="text-muted mb-0">@(isEdit ? "Update your book details." : "Share a book with the BookBridge community.")</p>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@ViewBag.BookId"
+                      method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4 rounded-3"></div>
+
+                    <!-- ── Step 1: Basic Info ── -->
+                    <div class="bb-card p-4 p-lg-5 mb-4">
+                        <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:24px;">
+                            <span class="me-2 d-inline-flex align-items-center justify-content-center rounded-circle"
+                                  style="width:28px;height:28px;background:var(--primary);color:white;font-size:0.8rem;">1</span>
+                            Book Information
+                        </h5>
+
+                        <div class="row g-4">
+                            <div class="col-md-8">
+                                <label class="form-label">Book Title <span class="text-danger">*</span></label>
+                                <input asp-for="Title" class="form-control bb-input" placeholder="Enter the full title" />
+                                <span asp-validation-for="Title" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Category <span class="text-danger">*</span></label>
+                                <select asp-for="CategoryId" class="form-select bb-input">
+                                    <option value="">Select category</option>
+                                    @foreach (var cat in Model.Categories)
+                                    {
+                                        <option value="@cat.Id">@cat.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Author <span class="text-danger">*</span></label>
+                                <input asp-for="Author" class="form-control bb-input" placeholder="Author name" />
+                                <span asp-validation-for="Author" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Language</label>
+                                <select asp-for="Language" class="form-select bb-input">
+                                    <option>English</option>
+                                    <option>Urdu</option>
+                                    <option>Punjabi</option>
+                                    <option>Sindhi</option>
+                                    <option>Pashto</option>
+                                    <option>Arabic</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Published Year</label>
+                                <input asp-for="PublishedYear" type="number" class="form-control bb-input"
+                                       placeholder="e.g. 2020" min="1900" max="2025" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Publisher</label>
+                                <input asp-for="Publisher" class="form-control bb-input" placeholder="Publisher name" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Pages</label>
+                                <input asp-for="Pages" type="number" class="form-control bb-input" placeholder="No. of pages" />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">ISBN</label>
+                                <input asp-for="ISBN" class="form-control bb-input" placeholder="ISBN number" />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea asp-for="Description" class="form-control bb-input" rows="4"
+                                          placeholder="Describe the book — condition, notes, what's inside..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Step 2: Transaction ── -->
+                    <div class="bb-card p-4 p-lg-5 mb-4">
+                        <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:24px;">
+                            <span class="me-2 d-inline-flex align-items-center justify-content-center rounded-circle"
+                                  style="width:28px;height:28px;background:var(--primary);color:white;font-size:0.8rem;">2</span>
+                            Transaction Type & Condition
+                        </h5>
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Transaction Type <span class="text-danger">*</span></label>
+                                <div class="d-flex gap-2 flex-wrap" id="transactionPicker">
+                                    @foreach (var type in Enum.GetValues<BookBridge.Models.Entities.TransactionType>())
+                                    {
+                                        <label class="transaction-option" style="flex:1;min-width:100px;">
+                                            <input type="radio" asp-for="TransactionType" value="@type"
+                                                   class="d-none transaction-radio" />
+                                            <div class="p-3 rounded-3 text-center border" style="cursor:pointer;transition:var(--transition);"
+                                                 onclick="selectTransaction(this, '@type')">
+                                                 <div style="font-size:1.2rem;margin-bottom:4px;">
+                                                     @Html.Raw(type switch {
+                                                         BookBridge.Models.Entities.TransactionType.Sell => "<i class='bi bi-tag text-primary'></i>",
+                                                         BookBridge.Models.Entities.TransactionType.Borrow => "<i class='bi bi-clock text-warning'></i>",
+                                                         BookBridge.Models.Entities.TransactionType.Donate => "<i class='bi bi-heart text-danger'></i>",
+                                                         BookBridge.Models.Entities.TransactionType.Exchange => "<i class='bi bi-arrow-left-right text-success'></i>",
+                                                         _ => "<i class='bi bi-question-circle'></i>"
+                                                     })
+                                                 </div>
+                                                 <div style="font-size:0.8rem;font-weight:600;">@type</div>
+                                             </div>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label">Book Condition <span class="text-danger">*</span></label>
+                                <select asp-for="Condition" class="form-select bb-input">
+                                    @foreach (var cond in Enum.GetValues<BookBridge.Models.Entities.BookCondition>())
+                                    {
+                                        <option value="@cond">@cond</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Dynamic price fields -->
+                            <div class="col-md-4" id="priceField">
+                                <label class="form-label">Price (Rs.)</label>
+                                <input asp-for="Price" type="number" class="form-control bb-input" placeholder="0.00" step="0.01" />
+                            </div>
+
+                            <div class="col-md-4" id="depositField" style="display:none;">
+                                <label class="form-label">Security Deposit (Rs.)</label>
+                                <input asp-for="DepositAmount" type="number" class="form-control bb-input" placeholder="0.00" />
+                            </div>
+
+                            <div class="col-md-4" id="daysField" style="display:none;">
+                                <label class="form-label">Max Borrow Duration (days)</label>
+                                <input asp-for="BorrowDurationDays" type="number" class="form-control bb-input"
+                                       placeholder="e.g. 14" min="1" max="90" />
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">City</label>
+                                <input asp-for="City" class="form-control bb-input" placeholder="Your city" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Step 3: Images ── -->
+                    <div class="bb-card p-4 p-lg-5 mb-4">
+                        <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:8px;">
+                            <span class="me-2 d-inline-flex align-items-center justify-content-center rounded-circle"
+                                  style="width:28px;height:28px;background:var(--primary);color:white;font-size:0.8rem;">3</span>
+                            Book Photos
+                        </h5>
+                        <p class="text-muted small mb-4">Upload up to 5 photos. First photo will be the primary display image.</p>
+
+                        <div class="upload-zone" id="uploadZone">
+                            <i class="bi bi-cloud-upload"></i>
+                            <p>Drag & drop photos here, or <strong style="color:var(--primary);">click to browse</strong></p>
+                            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">JPG, PNG up to 5MB each · Max 5 photos</p>
+                            <input type="file" name="Images" id="bookImages" multiple accept="image/*"
+                                   class="d-none" />
+                        </div>
+
+                        <div class="image-preview-grid" id="imagePreview"></div>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="d-flex gap-3 justify-content-end">
+                        <a asp-controller="Dashboard" asp-action="MyBooks" class="btn bb-btn-ghost">Cancel</a>
+                        <button type="submit" class="btn bb-btn-primary btn-lg">
+                            <i class="bi bi-check-lg me-2"></i>@(isEdit ? "Update Listing" : "Publish Book")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function selectTransaction(el, type) {
+        document.querySelectorAll('#transactionPicker > label > div').forEach(d => {
+            d.style.borderColor = 'var(--border)';
+            d.style.background = '';
+        });
+        el.style.borderColor = 'var(--primary)';
+        el.style.background = 'rgba(37,99,235,0.05)';
+
+        // Show/hide fields
+        const priceField = document.getElementById('priceField');
+        const depositField = document.getElementById('depositField');
+        const daysField = document.getElementById('daysField');
+
+        priceField.style.display = type === 'Sell' ? 'block' : 'none';
+        depositField.style.display = type === 'Borrow' ? 'block' : 'none';
+        daysField.style.display = type === 'Borrow' ? 'block' : 'none';
+    }
+
+    // Init selection based on current value
+    document.addEventListener('DOMContentLoaded', () => {
+        const checked = document.querySelector('.transaction-radio:checked');
+        if (checked) {
+            selectTransaction(checked.closest('label').querySelector('div'), checked.value);
+        }
+    });
+</script>
+}

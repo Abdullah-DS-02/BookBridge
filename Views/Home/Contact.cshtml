@@ -1,0 +1,81 @@
+@* Home/Contact.cshtml *@
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<div class="page-wrap">
+    <section style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:60px 0;text-align:center;">
+        <div class="container">
+            <div class="section-label">Get in Touch</div>
+            <h1 class="section-title">We'd Love to Hear From You</h1>
+            <p class="section-subtitle mt-3">Questions, feedback, or partnership inquiries — we respond within 24 hours.</p>
+        </div>
+    </section>
+
+    <div class="container py-5">
+        <div class="row g-5 justify-content-center">
+            <div class="col-lg-5">
+                <div class="analytics-card p-5">
+                    <h4 style="font-family:var(--font-body);font-weight:700;margin-bottom:24px;">Send a Message</h4>
+                    <form asp-action="Contact" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Your Name</label>
+                            <input name="name" class="form-control bb-input" placeholder="Full name" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input name="email" type="email" class="form-control bb-input" placeholder="your@email.com" required />
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Message</label>
+                            <textarea name="message" class="form-control bb-input" rows="5"
+                                      placeholder="Tell us what's on your mind..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn bb-btn-primary w-100">
+                            <i class="bi bi-send me-2"></i>Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="d-flex flex-column gap-4">
+                    @{
+                        var contacts = new[] {
+                            ("bi-envelope-fill", "Email Us", "support@bookbridge.pk", "var(--primary)"),
+                            ("bi-whatsapp", "WhatsApp", "+92-300-BOOKBRDG", "var(--emerald)"),
+                            ("bi-geo-alt-fill", "Location", "Lahore, Pakistan", "var(--rose)"),
+                            ("bi-clock-fill", "Hours", "Mon–Fri, 9am–6pm PKT", "var(--amber)")
+                        };
+                    }
+                    @foreach (var (icon, label, value, color) in contacts)
+                    {
+                        <div class="analytics-card p-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width:44px;height:44px;border-radius:var(--radius-md);background:rgba(0,0,0,0.04);display:flex;align-items:center;justify-content:center;">
+                                    <i class="bi @icon" style="font-size:1.2rem;color:@color;"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);">@label</div>
+                                    <div style="font-weight:600;font-size:0.9rem;margin-top:2px;">@value</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="analytics-card p-4">
+                        <h6 style="font-weight:700;margin-bottom:12px;">Follow Us</h6>
+                        <div class="d-flex gap-2">
+                            @foreach (var (icon, name) in new[] { ("bi-facebook", "Facebook"), ("bi-twitter-x", "Twitter"), ("bi-instagram", "Instagram"), ("bi-linkedin", "LinkedIn") })
+                            {
+                                <a href="#" class="social-btn" style="border-color:var(--border);color:var(--text-secondary);" title="@name">
+                                    <i class="bi @icon"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

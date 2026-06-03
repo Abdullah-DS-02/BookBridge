@@ -1,0 +1,94 @@
+@* Admin/_AdminLayout.cshtml *@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — BookBridge Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body class="admin-body">
+@{
+    ViewData["ShowSidebarToggle"] = true;
+}
+<partial name="_Navbar" />
+<div class="admin-layout" style="padding-top: var(--nav-height);">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-logo">
+            <div class="brand-icon" style="background:rgba(255,255,255,0.15);"><i class="bi bi-book-half"></i></div>
+            <span>BookBridge <span style="color:rgba(255,255,255,0.5);font-size:0.7rem;font-weight:400;">Admin</span></span>
+        </div>
+
+        @{
+            var action = ViewContext.RouteData.Values["action"]?.ToString();
+            bool IsActive(string a) => action == a;
+        }
+
+        <div style="padding:16px 0;">
+            <a asp-controller="Admin" asp-action="Index" class="admin-nav-link @(IsActive("Index") ? "active" : "")">
+                <i class="bi bi-grid"></i> Admin Dashboard
+            </a>
+            <div style="padding:8px 20px 4px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);">Management</div>
+            <a asp-controller="Admin" asp-action="Users" class="admin-nav-link @(IsActive("Users") ? "active" : "")">
+                <i class="bi bi-people"></i> Users
+            </a>
+            <a asp-controller="Admin" asp-action="Books" class="admin-nav-link @(IsActive("Books") ? "active" : "")">
+                <i class="bi bi-collection"></i> Books
+            </a>
+
+            <a asp-controller="Admin" asp-action="Categories" class="admin-nav-link @(IsActive("Categories") ? "active" : "")">
+                <i class="bi bi-tags"></i> Categories
+            </a>
+            <a asp-controller="Admin" asp-action="Subscribers" class="admin-nav-link @(IsActive("Subscribers") ? "active" : "")">
+                <i class="bi bi-envelope-check"></i> Subscribers
+            </a>
+            <div style="padding:8px 20px 4px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,0.3);">Support</div>
+            <a asp-controller="Admin" asp-action="Tickets" class="admin-nav-link @(IsActive("Tickets") ? "active" : "")">
+                <i class="bi bi-headset"></i> Tickets
+            </a>
+            <a asp-controller="Admin" asp-action="Reports" class="admin-nav-link @(IsActive("Reports") ? "active" : "")">
+                <i class="bi bi-flag"></i> Reports
+            </a>
+            <div style="padding:16px 20px;margin-top:auto;border-top:1px solid rgba(255,255,255,0.1);">
+                <a asp-controller="Dashboard" asp-action="Index" class="admin-nav-link">
+                    <i class="bi bi-grid-1x2"></i> User Dashboard
+                </a>
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    <button type="submit" class="admin-nav-link admin-nav-link-danger w-100 text-start border-0 bg-transparent">
+                        <i class="bi bi-box-arrow-right"></i> Sign Out
+                    </button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+        <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999;">
+            @if (TempData["Success"] != null)
+            {
+                <div class="toast bb-toast show">
+                    <div class="toast-header border-0">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <strong class="me-auto">Success</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                    </div>
+                    <div class="toast-body">@TempData["Success"]</div>
+                </div>
+            }
+        </div>
+        @RenderBody()
+    </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

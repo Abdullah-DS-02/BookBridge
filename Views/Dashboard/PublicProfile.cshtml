@@ -1,0 +1,147 @@
+@model BookBridge.Models.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = Model.User.FullName;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-wrap">
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Profile Sidebar -->
+            <div class="col-lg-4">
+                <div class="bb-card p-5 text-center">
+                    <div class="position-relative d-inline-block mb-4">
+                        <img src="@(Model.User.ProfilePicture ?? "/images/default-avatar.png")"
+                             alt="@Model.User.FullName"
+                             style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid var(--border);"
+                             onerror="this.src='/images/default-avatar.png'" />
+                        @if (Model.User.IsVerified)
+                        {
+                            <div style="position:absolute;bottom:4px;right:4px;background:var(--emerald);color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:2px solid white;">
+                                <i class="bi bi-patch-check-fill" style="font-size:0.75rem;"></i>
+                            </div>
+                        }
+                    </div>
+
+                    <h3 style="font-family:var(--font-body);font-weight:600;margin-bottom:4px;">@Model.User.FullName</h3>
+
+                    @if (!string.IsNullOrEmpty(Model.User.City))
+                    {
+                        <p class="text-muted mb-3" style="font-size:0.875rem;">
+                            <i class="bi bi-geo-alt me-1"></i>@Model.User.City
+                        </p>
+                    }
+
+                    <div class="d-flex justify-content-center gap-1 mb-4">
+                        <div class="stars">
+                            @for (int i = 1; i <= 5; i++) { @(i <= Math.Round(Model.User.AverageRating) ? "★" : "☆") }
+                        </div>
+                        <span style="font-size:0.85rem;color:var(--text-muted);">(@Model.User.TotalRatings reviews)</span>
+                    </div>
+
+                    <div class="row g-2 mb-4">
+                        <div class="col-6">
+                            <div style="background:rgba(37,99,235,0.06);border-radius:var(--radius-sm);padding:12px;">
+                                <div style="font-family:var(--font-body);font-size:1.5rem;font-weight:600;color:var(--primary);">@Model.Books.Count</div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">Books Listed</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div style="background:rgba(16,185,129,0.06);border-radius:var(--radius-sm);padding:12px;">
+                                <div style="font-family:var(--font-body);font-size:1.5rem;font-weight:600;color:var(--emerald);">@Model.Reviews.Count</div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">Reviews</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!Model.IsOwnProfile && User.Identity?.IsAuthenticated == true)
+                    {
+                        <form asp-controller="Chat" asp-action="StartConversation" method="post">
+                            <input type="hidden" name="userId" value="@Model.User.Id" />
+                            <button type="submit" class="btn bb-btn-primary w-100 mb-2">
+                                <i class="bi bi-chat-dots me-2"></i>Send Message
+                            </button>
+                        </form>
+                    }
+
+                    @if (Model.User.IsVerified)
+                    {
+                        <div class="d-flex align-items-center gap-2 p-2 rounded-2 mt-3"
+                             style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);justify-content:center;">
+                            <i class="bi bi-patch-check-fill text-success"></i>
+                            <span style="font-size:0.8rem;font-weight:600;color:var(--emerald);">Verified Identity</span>
+                        </div>
+                    }
+
+                    <div class="text-muted mt-3" style="font-size:0.78rem;">
+                        Member since @Model.User.CreatedAt.ToString("MMMM yyyy")
+                    </div>
+                </div>
+            </div>
+
+            <!-- Books + Reviews -->
+            <div class="col-lg-8">
+                <!-- Books -->
+                <div class="mb-4">
+                    <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:20px;">
+                        Books by @Model.User.FullName.Split(' ')[0]
+                    </h5>
+                    @if (Model.Books.Any())
+                    {
+                        <div class="row g-3">
+                            @foreach (var book in Model.Books.Take(6))
+                            {
+                                <div class="col-6 col-md-4">
+                                    @await Html.PartialAsync("_BookCard", book)
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted" style="border:1px solid var(--border);border-radius:var(--radius-lg);">
+                            No books listed yet
+                        </div>
+                    }
+                </div>
+
+                <!-- Reviews -->
+                <div>
+                    <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:20px;">Reviews</h5>
+                    @if (Model.Reviews.Any())
+                    {
+                        @foreach (var review in Model.Reviews.Take(5))
+                        {
+                            <div class="bb-card p-4 mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="@(review.Reviewer?.ProfilePicture ?? "/images/default-avatar.png")"
+                                             style="width:36px;height:36px;border-radius:50%;object-fit:cover;"
+                                             onerror="this.src='/images/default-avatar.png'" />
+                                        <div>
+                                            <div style="font-weight:600;font-size:0.875rem;">@review.Reviewer?.FullName</div>
+                                            <div class="stars" style="font-size:0.82rem;">
+                                                @for (int i = 1; i <= 5; i++) { @(i <= review.Rating ? "★" : "☆") }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="font-size:0.78rem;color:var(--text-muted);">@review.CreatedAt.ToString("dd MMM yyyy")</div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(review.Comment))
+                                {
+                                    <p style="font-size:0.875rem;color:var(--text-secondary);margin:0;line-height:1.6;">@review.Comment</p>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted" style="border:1px solid var(--border);border-radius:var(--radius-lg);">
+                            No reviews yet
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

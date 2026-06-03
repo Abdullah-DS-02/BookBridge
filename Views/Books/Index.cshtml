@@ -1,0 +1,228 @@
+@model BookBridge.Models.ViewModels.BookListViewModel
+@{
+    ViewData["Title"] = "Browse Books";
+}
+
+<div class="page-wrap">
+    <!-- Browse Header -->
+    <div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:32px 0;">
+        <div class="container">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-6">
+                    <h1 style="font-family:var(--font-body);font-size:1.8rem;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:12px;">
+                        <a asp-controller="Dashboard" asp-action="Index" class="text-secondary" style="font-size:1.5rem;display:inline-flex;align-items:center;transition:var(--transition);"><i class="bi bi-arrow-left"></i></a>
+                        Browse Books
+                    </h1>
+                    <p class="text-muted mb-0">
+                        @Model.TotalCount books found
+                        @if (!string.IsNullOrEmpty(Model.SearchQuery)) { <span>for "<strong>@Model.SearchQuery</strong>"</span> }
+                    </p>
+                </div>
+                <div class="col-lg-6">
+                    <form method="get" class="d-flex gap-2">
+                        <div class="search-pill flex-grow-1" style="border-radius:10px;padding:10px 16px;">
+                            <i class="bi bi-search"></i>
+                            <input name="SearchQuery" value="@Model.SearchQuery" class="search-input w-100" placeholder="Search by title, author..." />
+                        </div>
+                        <button type="submit" class="btn bb-btn-primary">Search</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="browse-layout">
+            <!-- ── Filter Panel ── -->
+            <aside>
+                <form method="get" id="filterForm">
+                    <input type="hidden" name="SearchQuery" value="@Model.SearchQuery" />
+
+                    <div class="filter-panel">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 style="font-weight:700;margin-bottom:0;">Filters</h6>
+                            <a asp-controller="Books" asp-action="Index" class="text-muted small">Clear all</a>
+                        </div>
+
+                        <!-- Transaction Type -->
+                        <div class="filter-group">
+                            <div class="filter-label">Transaction Type</div>
+                            @foreach (var type in Enum.GetValues<BookBridge.Models.Entities.TransactionType>())
+                            {
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="TransactionType"
+                                           id="type_@type" value="@type"
+                                           @(Model.TransactionType == type.ToString() ? "checked" : "")
+                                           onchange="document.getElementById('filterForm').submit()" />
+                                    <label class="form-check-label" for="type_@type" style="font-size:0.9rem;cursor:pointer;">
+                                        @Html.Raw(type switch {
+                                            BookBridge.Models.Entities.TransactionType.Sell => "<i class='bi bi-tag text-primary me-1'></i> For Sale",
+                                            BookBridge.Models.Entities.TransactionType.Borrow => "<i class='bi bi-clock text-warning me-1'></i> Borrow",
+                                            BookBridge.Models.Entities.TransactionType.Donate => "<i class='bi bi-heart text-danger me-1'></i> Donate",
+                                            BookBridge.Models.Entities.TransactionType.Exchange => "<i class='bi bi-arrow-left-right text-success me-1'></i> Exchange",
+                                            _ => type.ToString()
+                                        })
+                                    </label>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- Category -->
+                        <div class="filter-group">
+                            <div class="filter-label">Category</div>
+                            <select name="Category" class="form-select bb-input" onchange="document.getElementById('filterForm').submit()">
+                                <option value="">All Categories</option>
+                                @foreach (var cat in Model.Categories)
+                                {
+                                    <option value="@cat.Id" selected="@(Model.Category == cat.Id.ToString())">@cat.Name</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- Condition -->
+                        <div class="filter-group">
+                            <div class="filter-label">Condition</div>
+                            @foreach (var cond in Enum.GetValues<BookBridge.Models.Entities.BookCondition>())
+                            {
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="Condition"
+                                           id="cond_@cond" value="@cond"
+                                           @(Model.Condition == cond.ToString() ? "checked" : "")
+                                           onchange="document.getElementById('filterForm').submit()" />
+                                    <label class="form-check-label" for="cond_@cond" style="font-size:0.9rem;cursor:pointer;">@cond</label>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- Price Range -->
+                        <div class="filter-group">
+                            <div class="filter-label">Price Range (Rs.)</div>
+                            <div class="d-flex gap-2">
+                                <input type="number" name="MinPrice" value="@Model.MinPrice" placeholder="Min"
+                                       class="form-control bb-input" style="font-size:0.85rem;" />
+                                <input type="number" name="MaxPrice" value="@Model.MaxPrice" placeholder="Max"
+                                       class="form-control bb-input" style="font-size:0.85rem;" />
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- City -->
+                        <div class="filter-group">
+                            <div class="filter-label">City</div>
+                            <input type="text" name="City" value="@Model.City" placeholder="e.g. Lahore"
+                                   class="form-control bb-input" style="font-size:0.85rem;" />
+                        </div>
+
+
+                    </div>
+                </form>
+            </aside>
+
+            <!-- ── Book Grid ── -->
+            <div>
+                <!-- Sort Bar -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex gap-2 flex-wrap">
+                        @foreach (var (label, val) in new[] { ("Newest","newest"), ("Popular","popular"), ("Price ↑","price_asc"), ("Price ↓","price_desc") })
+                        {
+                            <a asp-controller="Books" asp-action="Index"
+                               asp-route-SearchQuery="@Model.SearchQuery"
+                               asp-route-SortBy="@val"
+                               class="chip @(Model.SortBy == val ? "active" : "")"
+                               style="@(Model.SortBy == val ? "background:var(--primary);color:white;" : "")">
+                                @label
+                            </a>
+                        }
+                    </div>
+                    <span class="text-muted small">@Model.TotalCount results</span>
+                </div>
+
+                @if (Model.Books.Any())
+                {
+                    <div class="row g-4">
+                        @foreach (var book in Model.Books)
+                        {
+                            <div class="col-6 col-md-4 col-xl-3">
+                                @await Html.PartialAsync("_BookCard", book)
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (Model.TotalPages > 1)
+                    {
+                        <nav class="mt-5">
+                            <ul class="pagination justify-content-center gap-1">
+                                @if (Model.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link bb-btn-ghost" asp-controller="Books" asp-action="Index"
+                                           asp-route-CurrentPage="@(Model.CurrentPage - 1)">
+                                            <i class="bi bi-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                }
+
+                                @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                                {
+                                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                        <a class="page-link @(i == Model.CurrentPage ? "bb-btn-primary" : "bb-btn-ghost")"
+                                           asp-controller="Books" asp-action="Index" asp-route-CurrentPage="@i">@i</a>
+                                    </li>
+                                }
+
+                                @if (Model.CurrentPage < Model.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link bb-btn-ghost" asp-controller="Books" asp-action="Index"
+                                           asp-route-CurrentPage="@(Model.CurrentPage + 1)">
+                                            <i class="bi bi-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </nav>
+                    }
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <div style="font-size:4rem;margin-bottom:16px;">📭</div>
+                        <h4>No books found</h4>
+                        <p class="text-muted">Try different filters or search terms.</p>
+                        <a asp-controller="Books" asp-action="Index" class="btn bb-btn-primary mt-2">Clear Filters</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("filterForm");
+        if (!form) return;
+
+        let debounceTimeout;
+
+        // Auto submit text inputs and numbers with a debounce delay
+        const autoSubmitDebounced = () => {
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(() => {
+                form.submit();
+            }, 600); // 600ms debounce
+        };
+
+        // Listen for input events on text and number fields
+        form.querySelectorAll("input[type='text'], input[type='number']").forEach(input => {
+            input.addEventListener("input", autoSubmitDebounced);
+        });
+    });
+</script>

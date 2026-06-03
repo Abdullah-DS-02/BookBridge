@@ -1,0 +1,97 @@
+@* Home/About.cshtml *@
+@{
+    ViewData["Title"] = "About BookBridge";
+}
+
+<div class="page-wrap">
+    <!-- Hero -->
+    <section style="padding:100px 0 60px;text-align:center;background:var(--bg-card);border-bottom:1px solid var(--border);">
+        <div class="container" style="position:relative;">
+            <div style="position:absolute;left:0;top:-40px;">
+                <a href="javascript:history.back()" class="text-secondary" style="font-size:1.5rem;display:inline-flex;align-items:center;transition:var(--transition);"><i class="bi bi-arrow-left"></i></a>
+            </div>
+            <div class="section-label">Our Story</div>
+            <h1 class="section-title" style="max-width:640px;margin:0 auto 20px;">
+                We Believe Every Book Deserves a New Reader
+            </h1>
+            <p class="section-subtitle" style="margin:0 auto;">
+                BookBridge was built to make books accessible to everyone in Pakistan — whether you want to buy, sell,
+                borrow, donate, or exchange, we've got you covered.
+            </p>
+        </div>
+    </section>
+
+    <!-- Mission -->
+    <section style="padding:80px 0;">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <div class="section-label">Our Mission</div>
+                    <h2 class="section-title mb-4">Connecting Readers Across Pakistan</h2>
+                    <p class="text-muted" style="line-height:1.8;font-size:1rem;">
+                        Millions of books sit on shelves unread. At the same time, millions of students and readers
+                        can't afford the books they need. BookBridge bridges that gap with a trusted, verified community
+                        where books find new homes.
+                    </p>
+                    <p class="text-muted mt-3" style="line-height:1.8;font-size:1rem;">
+                        Every listing, every exchange, every donated book is a step toward a more literate Pakistan.
+                    </p>
+                    <div class="d-flex gap-3 mt-4">
+                        <a asp-controller="Account" asp-action="Register" class="btn bb-btn-primary">Join the Community</a>
+                        <a asp-controller="Home" asp-action="Contact" class="btn bb-btn-ghost">Contact Us</a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row g-3">
+                        @{
+                            var values = new[] {
+                                ("🔒", "Verified Safety", "Every user goes through identity verification to prevent fraud and scams."),
+                                ("♻️", "Sustainability", "Give books a second life instead of letting them collect dust."),
+                                ("🤝", "Community Trust", "Ratings and reviews build a community of trusted readers."),
+                                ("📱", "Accessible", "Simple, beautiful platform anyone can use on any device.")
+                            };
+                        }
+                        @foreach (var (emoji, title, desc) in values)
+                        {
+                            <div class="col-6">
+                                <div class="bb-card p-4">
+                                    <div style="font-size:1.8rem;margin-bottom:12px;">@emoji</div>
+                                    <div style="font-weight:700;font-size:0.95rem;margin-bottom:6px;">@title</div>
+                                    <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.6;">@desc</div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-strip">
+        <div class="container">
+            <div class="row g-4 text-center">
+                @foreach (var (num, label) in new[] { ("500+", "Books Available"), ("200+", "Happy Readers"), ("50+", "Cities"), ("100%", "Verified Users") })
+                {
+                    <div class="col-6 col-md-3">
+                        <div class="stat-number">@num</div>
+                        <div class="stat-label">@label</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Team -->
+    <section style="padding:80px 0;background:var(--bg-card);">
+        <div class="container text-center">
+            <div class="section-label">The Team</div>
+            <h2 class="section-title mb-5">Built by Book Lovers</h2>
+            <p class="text-muted" style="max-width:500px;margin:0 auto 40px;">
+                BookBridge was created as a Final Year Project at a top Pakistani university, 
+                with a vision to grow into Pakistan's leading book marketplace.
+            </p>
+            <a asp-controller="Home" asp-action="Contact" class="btn bb-btn-primary">Get in Touch</a>
+        </div>
+    </section>
+</div>

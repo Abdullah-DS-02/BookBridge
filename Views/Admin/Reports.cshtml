@@ -1,0 +1,58 @@
+@* Admin/Reports.cshtml *@
+@model List<BookBridge.Models.Entities.Report>
+@{
+    ViewData["Title"] = "Reports";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<h2 style="font-family:var(--font-body);font-weight:600;margin-bottom:20px;">User Reports</h2>
+
+@if (Model.Any())
+{
+    <div class="admin-table">
+        <table class="table">
+            <thead>
+                <tr><th>Reporter</th><th>Reason</th><th>Description</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <td>
+                            <div style="font-weight:600;font-size:0.875rem;">@r.Reporter?.FullName</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);">@r.Reporter?.Email</div>
+                        </td>
+                        <td style="font-size:0.875rem;font-weight:600;">@r.Reason</td>
+                        <td style="font-size:0.8rem;color:var(--text-secondary);max-width:200px;">
+                            @(r.Description?.Length > 80 ? r.Description[..80] + "…" : r.Description)
+                        </td>
+                        <td style="font-size:0.8rem;color:var(--text-muted);">@r.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <span class="status-badge @(r.Status == "Pending" ? "badge-pending" : r.Status == "Resolved" ? "badge-approved" : "badge-rejected")">
+                                @r.Status
+                            </span>
+                        </td>
+                        <td>
+                            @if (r.Status == "Pending")
+                            {
+                                <form asp-action="ResolveReport" method="post" class="d-flex gap-1">
+                                    <input type="hidden" name="reportId" value="@r.Id" />
+                                    <button type="submit" name="action" value="Resolved" class="btn btn-sm btn-success">Resolve</button>
+                                    <button type="submit" name="action" value="Dismissed" class="btn btn-sm btn-outline-secondary">Dismiss</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="text-center py-5 analytics-card">
+        <i class="bi bi-flag" style="font-size:3rem;color:var(--text-muted);display:block;margin-bottom:12px;"></i>
+        <h5>No reports</h5>
+        <p class="text-muted">No user reports to review.</p>
+    </div>
+}

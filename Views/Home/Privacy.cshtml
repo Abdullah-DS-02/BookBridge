@@ -1,0 +1,65 @@
+@* Views/Home/Privacy.cshtml *@
+@{
+    ViewData["Title"] = "Privacy Policy";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5" style="margin-top: calc(var(--nav-height) + 20px);">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <!-- Header Card -->
+            <div class="analytics-card p-5 mb-5 text-center text-lg-start position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(37,99,235,0.04), rgba(79,70,229,0.04)); border: 1px solid var(--border);">
+                <span class="badge bg-primary-subtle text-primary mb-3 px-3 py-2 rounded-pill fw-bold text-uppercase" style="font-size:0.75rem; letter-spacing:0.5px;">Trust & Security</span>
+                <h1 style="font-family: var(--font-body); font-weight: 800; font-size: 2.5rem; margin-bottom: 12px; color: var(--text-primary);">Privacy Policy</h1>
+                <p class="text-muted mb-0" style="font-size: 1.05rem;">Last Updated: June 2026. Learn how BookBridge protects your personal data and maintains security.</p>
+            </div>
+
+            <!-- Content -->
+            <div class="d-flex flex-column gap-5 text-secondary" style="font-size: 0.95rem; line-height: 1.8;">
+                
+                <section>
+                    <h3 style="font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">1. Information We Collect</h3>
+                    <p>At BookBridge, we collect information to provide a better, safer service for listing, buying, selling, borrowing, and exchanging books. This includes:</p>
+                    <ul class="ps-3 d-flex flex-column gap-2 mt-2">
+                        <li><strong>Account Information:</strong> Full name, email address, phone number, and account credentials (managed securely via Firebase Auth).</li>
+                        <li><strong>Profile Data:</strong> Profile photo, city, street address, and optional CNIC/ID number (only used for verified identity status).</li>
+                        <li><strong>Listing Details:</strong> Images, titles, authors, and descriptions of books you list, along with your set prices or borrow terms.</li>
+                        <li><strong>Communication:</strong> Chats, support tickets, and feedback exchanged within our real-time messaging interface.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 style="font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">2. How We Use Your Information</h3>
+                    <p>We process your data for the following essential business purposes:</p>
+                    <ul class="ps-3 d-flex flex-column gap-2 mt-2">
+                        <li>To run the peer-to-peer marketplace, linking book buyers, sellers, donors, and borrowers.</li>
+                        <li>To verify account authenticity via email verification codes and optional ID/CNIC checks to prevent scams.</li>
+                        <li>To handle transactions, deposits, and wallets securely (using payment processors like Stripe).</li>
+                        <li>To send real-time notifications about borrow requests, due dates, and chat messages.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 style="font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">3. Data Sharing & Security</h3>
+                    <p>We do not sell your personal data. We only share information with third parties in these cases:</p>
+                    <ul class="ps-3 d-flex flex-column gap-2 mt-2">
+                        <li><strong>Other Users:</strong> Your full name, ratings, and city are visible to other users on listings and public profiles. During a borrow or transaction, phone numbers are shared to coordinate handovers.</li>
+                        <li><strong>Service Providers:</strong> We use Firebase for authentication, MailKit/SMTP for email services, and Stripe for processing credit card details.</li>
+                        <li><strong>Security:</strong> All passwords and private tokens are encrypted using state-of-the-art hashing algorithms.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 style="font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">4. Location Data</h3>
+                    <p>Since BookBridge operates as a community-driven local network, we collect and store your city and optional address details to help users filter books close to them. We do not track your exact real-time GPS coordinates without your permission.</p>
+                </section>
+
+                <section>
+                    <h3 style="font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">5. Your Choices & Data Deletion</h3>
+                    <p>You can edit your profile information, change your password, or update your profile picture at any time via your Dashboard settings. If you wish to delete your account and remove all your data permanently from the BookBridge database, please submit a ticket in the Support section or email us directly at <code>privacy@bookbridge.com</code>.</p>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</div>

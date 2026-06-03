@@ -1,0 +1,62 @@
+@* Views/Home/Terms.cshtml *@
+@{
+    ViewData["Title"] = "Terms of Service";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5" style="margin-top: calc(var(--nav-height) + 20px);">
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <!-- Header Card -->
+            <div class="analytics-card p-5 mb-5 text-center text-lg-start position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(37,99,235,0.04), rgba(79,70,229,0.04)); border: 1px solid var(--border);">
+                <span class="badge bg-primary-subtle text-primary mb-3 px-3 py-2 rounded-pill fw-bold text-uppercase" style="font-size:0.75rem; letter-spacing:0.5px;">User Agreement</span>
+                <h1 style="font-family: var(--font-body); font-weight: 800; font-size: 2.5rem; margin-bottom: 12px; color: var(--text-primary);">Terms of Service</h1>
+                <p class="text-muted mb-0" style="font-size: 1.05rem;">Last Updated: June 2026. Welcome to BookBridge. Please read these terms carefully before using our platform.</p>
+            </div>
+
+            <!-- Content -->
+            <div class="d-flex flex-column gap-5 text-secondary" style="font-size: 0.95rem; line-height: 1.8;">
+                
+                <section>
+                    <h3 style="font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">1. User Accounts & Verification</h3>
+                    <p>To access most features of BookBridge (listing books, initiating transactions, chatting), you must create a free account. By registering, you agree that:</p>
+                    <ul class="ps-3 d-flex flex-column gap-2 mt-2">
+                        <li>You will provide accurate, current information.</li>
+                        <li>You must verify your email address via the 6-digit verification code sent during signup.</li>
+                        <li>You are solely responsible for maintaining password security (managed securely via Firebase Auth).</li>
+                        <li>We reserve the right to ban or suspend accounts that violate safety guidelines or use fake information.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 style="font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">2. Book Listings & Transactions</h3>
+                    <p>When you list a book for sale, borrow, exchange, or donation, you agree to the following conditions:</p>
+                    <ul class="ps-3 d-flex flex-column gap-2 mt-2">
+                        <li><strong>Accuracy:</strong> You must accurately represent the book's title, author, condition, and price. Listing duplicate, spam, or copyrighted digital files is strictly prohibited.</li>
+                        <li><strong>Borrows:</strong> Borrow agreements are binding. Borrowers must return the book on or before the due date. The owner can set a security deposit amount to cover non-returns.</li>
+                        <li><strong>Wallet Payments:</strong> Transactions processed via BookBridge wallets or card processing (Stripe) are subject to escrow and payment holds until handovers are verified.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h3 style="font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">3. Safe Exchange Guidelines (P2P Trading)</h3>
+                    <p class="text-danger-emphasis bg-danger-subtle p-3 rounded-3 mb-3 fw-medium">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Safety Notice:</strong> For physical book exchanges, always arrange handovers in public, well-lit spaces (e.g. malls, campuses, cafes) and verify the book condition before completing the transaction.
+                    </p>
+                    <p>BookBridge provides the digital coordination tool but is not liable for physical safety during handovers or the behavior of users outside the online platform.</p>
+                </section>
+
+                <section>
+                    <h3 style="font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">4. Code of Conduct & Chat System</h3>
+                    <p>The BookBridge real-time chat system is built to facilitate book handovers. Users must refrain from harassment, spamming, listing off-topic items, or executing transactions outside the platform to avoid fraud. Violating these guidelines will result in warnings, rating decreases, or permanent account suspension.</p>
+                </section>
+
+                <section>
+                    <h3 style="font-family: var(--font-body); font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">5. Limitation of Liability</h3>
+                    <p>BookBridge is provided "as is" without warranty. We do not guarantee that all listed books will be available, nor do we assume responsibility for lost, damaged, or stolen books. However, our rating system, support tickets, and identity verification are implemented to minimize risks and maintain a trusted network.</p>
+                </section>
+
+            </div>
+        </div>
+    </div>
+</div>

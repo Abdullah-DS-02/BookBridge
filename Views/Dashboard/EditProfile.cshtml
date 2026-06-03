@@ -1,0 +1,364 @@
+@* Dashboard/EditProfile.cshtml *@
+@model BookBridge.Models.ViewModels.EditProfileViewModel
+@inject Microsoft.AspNetCore.Identity.UserManager<BookBridge.Models.Entities.ApplicationUser> UserManager
+@{
+    var appUser = await UserManager.GetUserAsync(User);
+    ViewData["Title"] = "Edit Profile";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <!-- Back Button -->
+        <a asp-action="Profile" class="d-inline-flex align-items-center text-decoration-none text-muted mb-3 fw-semibold" style="font-size:0.875rem;">
+            <i class="bi bi-arrow-left me-2"></i>Back to Profile
+        </a>
+
+        <h2 style="font-family:var(--font-body);font-weight:600;margin-bottom:4px;">Edit Profile</h2>
+        <p class="text-muted mb-4">Update your personal information and profile picture.</p>
+
+        <form asp-action="EditProfile" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+
+            <div class="analytics-card p-4 mb-4">
+                <!-- Circular Avatar Selection -->
+                <div class="text-center mb-4">
+                    <div class="position-relative d-inline-block">
+                        <div class="profile-avatar-wrapper" onclick="document.getElementById('profilePicInput').click()" 
+                             style="cursor:pointer; width:120px; height:120px; border-radius:50%; overflow:hidden; border:4px solid var(--border); transition:all 0.3s ease; position:relative; background:var(--bg-base); margin: 0 auto;">
+                            <img id="avatarPreview" src="@(string.IsNullOrEmpty(Model.CurrentProfilePicture) ? "/images/default-avatar.png" : Model.CurrentProfilePicture)" 
+                                 style="width:100%; height:100%; object-fit:cover; transition:all 0.3s ease;" 
+                                 onerror="this.src='/images/default-avatar.png'" />
+                            <div class="avatar-hover-overlay" style="position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; flex-direction:column; align-items:center; justify-content:center; color:white; opacity:0; transition:all 0.3s ease;">
+                                <i class="bi bi-camera-fill" style="font-size:1.5rem;"></i>
+                                <span style="font-size:0.7rem; font-weight:600; text-transform:uppercase; margin-top:2px;">Change</span>
+                            </div>
+                        </div>
+                        <input type="file" id="profilePicInput" name="file" accept="image/*" class="d-none" />
+                    </div>
+                    
+                    <!-- Upload Status Message Container -->
+                    <div id="uploadStatusMessage" class="mt-2 small fw-semibold" style="min-height:20px;"></div>
+                </div>
+
+                <h6 style="font-family:var(--font-body);font-weight:700;margin-bottom:20px;">Personal Information</h6>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                        <input asp-for="FullName" class="form-control bb-input" placeholder="Your full name" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label mb-0">Phone Number</label>
+                            @if (appUser != null) {
+                                if (appUser.PhoneNumberConfirmed) {
+                                    <span class="text-success small fw-semibold" style="font-size:0.75rem;"><i class="bi bi-patch-check-fill me-1"></i>Verified</span>
+                                } else if (!string.IsNullOrEmpty(appUser.PhoneNumber)) {
+                                    <a asp-controller="Account" asp-action="VerifyPhone" asp-route-email="@appUser.Email" class="text-danger small fw-semibold text-decoration-none" style="font-size:0.75rem;"><i class="bi bi-exclamation-triangle-fill me-1"></i>Verify Now</a>
+                                }
+                            }
+                        </div>
+                        <input asp-for="PhoneNumber" class="form-control bb-input" placeholder="03XX-XXXXXXX" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">City</label>
+                        <select asp-for="City" class="form-select bb-input">
+                            <option value="">Select city</option>
+                            @foreach (var city in new[] { "Lahore", "Karachi", "Islamabad", "Rawalpindi", "Faisalabad", "Multan", "Peshawar", "Quetta", "Sialkot", "Other" })
+                            {
+                                <option value="@city">@city</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Address</label>
+                        <input asp-for="Address" class="form-control bb-input" placeholder="Street address" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">CNIC / ID Number</label>
+                        <input asp-for="CNIC" class="form-control bb-input" placeholder="XXXXX-XXXXXXX-X" />
+                        <div class="form-text">Used for identity verification only. Kept secure.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-3 justify-content-end mb-4">
+                <a asp-action="Profile" class="btn bb-btn-ghost">Cancel</a>
+                <button type="submit" class="btn bb-btn-primary">
+                    <i class="bi bi-check-lg me-2"></i>Save Changes
+                </button>
+            </div>
+        </form>
+
+        <!-- Change Password Card -->
+        <div class="analytics-card p-4 mb-5" id="changePasswordCard">
+            <h6 style="font-family:var(--font-body);font-weight:700;margin-bottom:20px;">Change Password</h6>
+            
+            <div id="passwordMessage" class="alert d-none rounded-3 mb-4"></div>
+
+            <div class="row g-3" id="passwordFields">
+                <div class="col-12 d-none" id="passwordInputsContainer">
+                    <div class="mb-3">
+                        <label class="form-label">Current Password</label>
+                        <input type="password" id="currentPassword" class="form-control bb-input" placeholder="••••••••" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">New Password</label>
+                        <input type="password" id="newPassword" class="form-control bb-input" placeholder="Min. 8 characters" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" id="confirmNewPassword" class="form-control bb-input" placeholder="Re-enter new password" />
+                    </div>
+                    <button type="button" id="changePasswordBtn" class="btn bb-btn-primary w-100 mt-2 d-flex align-items-center justify-content-center gap-2">
+                        <span>Update Password</span> <i class="bi bi-key" id="passwordBtnIcon"></i>
+                    </button>
+                </div>
+                <div class="col-12 d-none" id="googleAccountMessage">
+                    <div class="alert alert-info rounded-3 mb-0">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        This account is authenticated via Google. Password settings are managed by your Google account.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .profile-avatar-wrapper:hover {
+        border-color: var(--primary) !important;
+        transform: scale(1.03);
+    }
+    .profile-avatar-wrapper:hover .avatar-hover-overlay {
+        opacity: 1 !important;
+    }
+    .profile-avatar-wrapper:hover img {
+        filter: blur(1.5px);
+    }
+    
+    .upload-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        animation: badgeFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid transparent;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    
+    .upload-loading {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+        border-color: rgba(59, 130, 246, 0.2);
+    }
+    
+    .upload-success {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border-color: rgba(16, 185, 129, 0.2);
+    }
+    
+    .upload-error {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+    
+    @@keyframes badgeFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    .spin {
+        animation: spin 1.2s linear infinite;
+        display: inline-block;
+    }
+</style>
+
+@section Scripts {
+    <script type="module">
+        import { auth } from "/js/firebase-config.js";
+        import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // Firebase Auth State Check
+        auth.onAuthStateChanged((firebaseUser) => {
+            if (firebaseUser) {
+                const isGoogle = firebaseUser.providerData.some(p => p.providerId === "google.com");
+                if (isGoogle) {
+                    document.getElementById("googleAccountMessage").classList.remove("d-none");
+                    document.getElementById("passwordInputsContainer").classList.add("d-none");
+                } else {
+                    document.getElementById("passwordInputsContainer").classList.remove("d-none");
+                    document.getElementById("googleAccountMessage").classList.add("d-none");
+                }
+            } else {
+                // If not signed in to Firebase client-side yet (or session hasn't synced), show inputs by default
+                document.getElementById("passwordInputsContainer").classList.remove("d-none");
+            }
+        });
+
+        // Change Password Form Handling
+        const changePasswordBtn = document.getElementById("changePasswordBtn");
+        const passwordBtnIcon = document.getElementById("passwordBtnIcon");
+        const passwordMessage = document.getElementById("passwordMessage");
+
+        function showPasswordMessage(type, text) {
+            passwordMessage.textContent = text;
+            passwordMessage.className = `alert alert-${type} rounded-3 mb-4`;
+            passwordMessage.classList.remove("d-none");
+        }
+
+        changePasswordBtn.addEventListener("click", async () => {
+            passwordMessage.classList.add("d-none");
+
+            const currentPassword = document.getElementById("currentPassword").value;
+            const newPassword = document.getElementById("newPassword").value;
+            const confirmNewPassword = document.getElementById("confirmNewPassword").value;
+
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                showPasswordMessage("danger", "All fields are required.");
+                return;
+            }
+
+            if (newPassword !== confirmNewPassword) {
+                showPasswordMessage("danger", "New passwords do not match.");
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                showPasswordMessage("danger", "New password must be at least 8 characters long.");
+                return;
+            }
+
+            changePasswordBtn.disabled = true;
+            changePasswordBtn.querySelector("span").textContent = "Updating...";
+            passwordBtnIcon.className = "bi bi-arrow-repeat spin";
+
+            const user = auth.currentUser;
+            if (!user) {
+                showPasswordMessage("danger", "Firebase session not synchronized. Please log out and sign in again.");
+                changePasswordBtn.disabled = false;
+                changePasswordBtn.querySelector("span").textContent = "Update Password";
+                passwordBtnIcon.className = "bi bi-key";
+                return;
+            }
+
+            try {
+                // 1. Reauthenticate with Firebase
+                const credential = EmailAuthProvider.credential(user.email, currentPassword);
+                await reauthenticateWithCredential(user, credential);
+
+                // 2. Update Password in Firebase
+                await updatePassword(user, newPassword);
+
+                // 3. Post to local server endpoint to sync database password hash
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                const formData = new FormData();
+                formData.append("currentPassword", currentPassword);
+                formData.append("newPassword", newPassword);
+                if (token) {
+                    formData.append("__RequestVerificationToken", token);
+                }
+
+                const response = await fetch("/Dashboard/ChangePassword", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showPasswordMessage("success", "Password updated successfully in both Firebase and local database.");
+                    document.getElementById("currentPassword").value = "";
+                    document.getElementById("newPassword").value = "";
+                    document.getElementById("confirmNewPassword").value = "";
+                } else {
+                    showPasswordMessage("warning", `Password updated in Firebase, but local database sync warning: ${result.message}`);
+                }
+
+            } catch (error) {
+                console.error("Change password error:", error);
+                let msg = "Failed to change password. Make sure current password is correct.";
+                if (error.code === "auth/wrong-password") {
+                    msg = "Incorrect current password.";
+                } else if (error.code === "auth/weak-password") {
+                    msg = "Password is too weak.";
+                } else if (error.code === "auth/requires-recent-login") {
+                    msg = "Please log out and sign in again to perform this operation.";
+                }
+                showPasswordMessage("danger", msg);
+            } finally {
+                changePasswordBtn.disabled = false;
+                changePasswordBtn.querySelector("span").textContent = "Update Password";
+                passwordBtnIcon.className = "bi bi-key";
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const fileInput = document.getElementById("profilePicInput");
+            const avatarImg = document.getElementById("avatarPreview");
+            const statusMsg = document.getElementById("uploadStatusMessage");
+
+            if (!fileInput) return;
+
+            fileInput.addEventListener("change", async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // 1. Show client side preview immediately
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    avatarImg.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+
+                // 2. Perform AJAX upload
+                statusMsg.innerHTML = '<div class="upload-badge upload-loading"><i class="bi bi-arrow-repeat spin me-2"></i>Uploading photo...</div>';
+                
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                const formData = new FormData();
+                formData.append("file", file);
+                if (token) {
+                    formData.append("__RequestVerificationToken", token);
+                }
+
+                try {
+                    const response = await fetch("@Url.Action("UploadProfilePicture", "Dashboard")", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        statusMsg.innerHTML = '<div class="upload-badge upload-success"><i class="bi bi-check-circle-fill me-2"></i>' + result.message + '</div>';
+                        
+                        // Also update any sidebar or navbar avatars on the page if they exist
+                        const navAvatars = document.querySelectorAll(".nav-profile-img, .sidebar-profile-img, img[src*='default-avatar.png']");
+                        navAvatars.forEach(img => {
+                            // Only update if it represents the user profile avatar
+                            if (img.classList.contains("header-avatar") || img.closest(".dashboard-sidebar") || img.closest(".navbar")) {
+                                img.src = result.imagePath;
+                            }
+                        });
+                    } else {
+                        statusMsg.innerHTML = '<div class="upload-badge upload-error"><i class="bi bi-exclamation-triangle-fill me-2"></i>' + result.message + '</div>';
+                    }
+                } catch (err) {
+                    console.error("Profile upload error:", err);
+                    statusMsg.innerHTML = '<div class="upload-badge upload-error"><i class="bi bi-exclamation-triangle-fill me-2"></i>Connection error. Failed to upload.</div>';
+                }
+            });
+        });
+    </script>
+}

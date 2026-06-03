@@ -1,0 +1,287 @@
+@model BookBridge.Models.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Pakistan's Book Marketplace";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- ── Hero Section ─────────────────────────────── -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-badge">
+                    <i class="bi bi-stars"></i>
+                    <span>Pakistan's First Complete Book Ecosystem</span>
+                </div>
+
+                <h1 class="hero-title">
+                    Connect Through<br>
+                    <span class="gradient-text">Books. Build</span><br>
+                    Community.
+                </h1>
+
+                <p class="hero-desc">
+                    Buy, sell, borrow, donate, and exchange books with verified readers across Pakistan.
+                    Your next great read is one click away.
+                </p>
+
+                <div class="hero-cta">
+                    <a asp-controller="Books" asp-action="Index" class="btn bb-btn-primary btn-lg">
+                        <i class="bi bi-search me-2"></i>Explore Books
+                    </a>
+                    <a asp-controller="Account" asp-action="Register" class="btn bb-btn-ghost btn-lg">
+                        Get Started Free <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+
+
+            </div>
+
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="hero-visual">
+                    @if (Model.FeaturedBooks.Any())
+                    {
+                        @for (int i = 0; i < Math.Min(3, Model.FeaturedBooks.Count); i++)
+                        {
+                            var book = Model.FeaturedBooks[i];
+                            <div class="floating-book">
+                                <img src="@(book.PrimaryImage ?? "/images/book-placeholder.png")"
+                                     alt="@book.Title" style="width:100%;height:100%;object-fit:cover;" />
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="floating-book" style="background:linear-gradient(135deg,#2563EB,#4F46E5);display:flex;align-items:center;justify-content:center;">
+                            <i class="bi bi-book-half text-white" style="font-size:4rem;"></i>
+                        </div>
+                        <div class="floating-book" style="background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;">
+                            <i class="bi bi-bookmark-heart text-white" style="font-size:3rem;"></i>
+                        </div>
+                        <div class="floating-book" style="background:linear-gradient(135deg,#F59E0B,#D97706);display:flex;align-items:center;justify-content:center;">
+                            <i class="bi bi-journal-bookmark text-white" style="font-size:3rem;"></i>
+                        </div>
+                    }
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Transaction Types ─────────────────────── -->
+<section class="py-5" style="background:var(--bg-card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <a asp-controller="Books" asp-action="Index" asp-route-TransactionType="Sell"
+                   class="d-block text-decoration-none p-4 rounded-3 text-center transaction-pill pill-sell"
+                   style="background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.1);">
+                    <div style="font-size:2rem;margin-bottom:8px;"><i class="bi bi-tag text-primary"></i></div>
+                    <div style="font-weight:700;color:var(--primary);">Buy Books</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);">Great deals await</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a asp-controller="Books" asp-action="Index" asp-route-TransactionType="Borrow"
+                   class="d-block text-decoration-none p-4 rounded-3 text-center transaction-pill pill-borrow"
+                   style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.15);">
+                    <div style="font-size:2rem;margin-bottom:8px;"><i class="bi bi-clock text-warning"></i></div>
+                    <div style="font-weight:700;color:var(--amber);">Borrow Books</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);">Read, return, repeat</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a asp-controller="Books" asp-action="Index" asp-route-TransactionType="Donate"
+                   class="d-block text-decoration-none p-4 rounded-3 text-center transaction-pill pill-donate"
+                   style="background:rgba(244,63,94,0.05);border:1px solid rgba(244,63,94,0.1);">
+                    <div style="font-size:2rem;margin-bottom:8px;"><i class="bi bi-heart text-danger"></i></div>
+                    <div style="font-weight:700;color:var(--rose);">Donate</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);">Pay it forward</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a asp-controller="Books" asp-action="Index" asp-route-TransactionType="Exchange"
+                   class="d-block text-decoration-none p-4 rounded-3 text-center transaction-pill pill-exchange"
+                   style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.1);">
+                    <div style="font-size:2rem;margin-bottom:8px;"><i class="bi bi-arrow-left-right text-success"></i></div>
+                    <div style="font-weight:700;color:var(--emerald);">Exchange</div>
+                    <div style="font-size:0.8rem;color:var(--text-muted);">Swap your reads</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Categories ───────────────────────────── -->
+<section class="py-6" style="padding:80px 0;">
+    <div class="container">
+        <div class="text-center mb-5" data-reveal>
+            <div class="section-label">Browse by Genre</div>
+            <h2 class="section-title">Every Category, Every Interest</h2>
+        </div>
+        <div class="row g-3">
+            @foreach (var cat in Model.Categories)
+            {
+                <div class="col-6 col-md-4 col-lg-2" data-reveal>
+                    <a asp-controller="Books" asp-action="Index" asp-route-Category="@cat.Id"
+                       class="bb-card d-block text-center p-4 text-decoration-none">
+                        <div style="font-size:1.8rem;margin-bottom:10px;">
+                            <i class="bi @(cat.Icon ?? "bi-book")"></i>
+                        </div>
+                        <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">@cat.Name</div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ── Featured Books ────────────────────────── -->
+@if (Model.FeaturedBooks.Any())
+{
+    <section style="padding:60px 0;background:var(--bg-card);">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <div class="section-label">Handpicked</div>
+                    <h2 class="section-title">Featured Books</h2>
+                </div>
+                <a asp-controller="Books" asp-action="Index" class="btn bb-btn-ghost btn-sm">
+                    View all <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+            <div class="row g-4">
+                @foreach (var book in Model.FeaturedBooks)
+                {
+                    <div class="col-6 col-md-4 col-lg-2">
+                        @await Html.PartialAsync("_BookCard", book)
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
+
+<!-- ── Stats Strip ───────────────────────────── -->
+<section class="stats-strip">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number" data-counter="@Model.TotalBooks">@Model.TotalBooks</div>
+                    <div class="stat-label">Books Available</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number" data-counter="@Model.TotalUsers">@Model.TotalUsers</div>
+                    <div class="stat-label">Registered Readers</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number" data-counter="@Model.TotalTransactions">@Model.TotalTransactions</div>
+                    <div class="stat-label">Successful Exchanges</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number" data-counter="@Model.BooksAvailableForFree">@Model.BooksAvailableForFree</div>
+                    <div class="stat-label">Books Donated</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Recent Books ──────────────────────────── -->
+<section style="padding:80px 0;">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-5">
+            <div>
+                <div class="section-label">Just Added</div>
+                <h2 class="section-title">Recently Listed</h2>
+            </div>
+            <a asp-controller="Books" asp-action="Index" asp-route-SortBy="newest" class="btn bb-btn-ghost btn-sm">
+                See all <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-4">
+            @foreach (var book in Model.RecentBooks)
+            {
+                <div class="col-6 col-md-4 col-lg-3">
+                    @await Html.PartialAsync("_BookCard", book)
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ── CTA Section ───────────────────────────── -->
+<section style="padding:80px 0;background:var(--bg-card);">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="section-label">For Book Lovers</div>
+                <h2 class="section-title">Have books collecting dust?</h2>
+                <p class="text-muted mt-3 mb-4" style="font-size:1rem;line-height:1.7;">
+                    List them in minutes. Set your price, choose your terms, upload photos,
+                    and connect with thousands of readers looking for exactly what you have.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a asp-controller="Books" asp-action="Create" class="btn bb-btn-primary">
+                        <i class="bi bi-plus-lg me-2"></i>List Your Book
+                    </a>
+                    <a asp-controller="Home" asp-action="About" class="btn bb-btn-ghost">Learn More</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    @{
+                        var steps = new[] {
+                            ("bi-camera", "Upload photos", "Take a few shots of your book"),
+                            ("bi-tag", "Set your price", "Name your own price or offer for free"),
+                            ("bi-chat-dots", "Chat & connect", "Talk directly with interested readers"),
+                            ("bi-check-circle", "Complete the deal", "Safe, verified transactions")
+                        };
+                    }
+                    @foreach (var (icon, title, desc) in steps)
+                    {
+                        <div class="col-6">
+                            <div class="bb-card p-4">
+                                <i class="bi @icon text-primary mb-3" style="font-size:1.5rem;"></i>
+                                <div style="font-weight:700;margin-bottom:4px;font-size:0.9rem;">@title</div>
+                                <div style="font-size:0.8rem;color:var(--text-muted);">@desc</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ── Trending ──────────────────────────────── -->
+@if (Model.TrendingBooks.Any())
+{
+    <section style="padding:80px 0;">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <div class="section-label">🔥 Hot Right Now</div>
+                    <h2 class="section-title">Trending Books</h2>
+                </div>
+            </div>
+            <div class="row g-4">
+                @foreach (var book in Model.TrendingBooks.Take(8))
+                {
+                    <div class="col-6 col-md-4 col-lg-3">
+                        @await Html.PartialAsync("_BookCard", book)
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — BookBridge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" />
+    <style>
+        body { background: var(--bg-base); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 24px 24px; padding-top: calc(var(--nav-height) + 24px); }
+
+        .auth-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 960px;
+            width: 100%;
+            min-height: 600px;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-panel {
+            background: linear-gradient(145deg, #1e3a8a, #4f46e5, #0f172a);
+            padding: 60px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-panel::before {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08), transparent);
+            border-radius: 50%;
+            top: -100px; right: -100px;
+        }
+
+        .auth-panel-title {
+            font-family:var(--font-body);
+            font-size: 2rem;
+            font-weight:600;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .auth-panel-desc { font-size: 0.95rem; opacity: 0.75; line-height: 1.7; }
+
+        .auth-features { list-style: none; padding: 0; margin: 32px 0 0; }
+        .auth-features li {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 0.9rem; margin-bottom: 14px; opacity: 0.9;
+        }
+        .auth-features li i { color: #10b981; font-size: 1rem; }
+
+        .auth-card {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 48px 40px;
+            overflow-y: auto;
+            border-left: 1px solid var(--border);
+        }
+
+        .auth-header { text-align: center; margin-bottom: 32px; }
+        .auth-title { font-family:var(--font-body); font-size: 1.6rem; font-weight:600; margin-bottom: 6px; color: var(--text-primary); }
+        .auth-subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .input-icon-wrap { position: relative; }
+        .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; z-index: 1; }
+        .input-with-icon { padding-left: 38px !important; padding-right: 44px !important; }
+        .password-toggle {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;
+            font-size: 0.9rem; z-index: 1;
+        }
+        .password-toggle:hover { color: var(--primary); }
+
+        .fw-600 { font-weight: 600; }
+
+        @@media (max-width: 768px) {
+            .auth-wrapper { grid-template-columns: 1fr; }
+            .auth-panel { display: none; }
+            .auth-card { border-radius: var(--radius-xl); border-left: none; }
+        }
+    </style>
+</head>
+<body>
+    <partial name="_Navbar" />
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <div class="auth-wrapper">
+        <!-- Left Panel -->
+        <div class="auth-panel">
+            <div>
+                <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center gap-2 text-white text-decoration-none mb-5">
+                    <div class="brand-icon" style="background:rgba(255,255,255,0.15);"><i class="bi bi-book-half"></i></div>
+                    <span style="font-family:var(--font-body);font-size:1.1rem;font-weight:700;">Book<strong>Bridge</strong></span>
+                </a>
+
+                <div class="auth-panel-title">Pakistan's Premier Book Ecosystem</div>
+                <div class="auth-panel-desc">
+                    Join thousands of readers who buy, sell, borrow, donate, and exchange books with trust and ease.
+                </div>
+
+                <ul class="auth-features">
+                    <li><i class="bi bi-check-circle-fill"></i> Buy & sell books at great prices</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Borrow books with countdown tracking</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Donate books to those in need</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Real-time chat with other readers</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Verified identities for safe transactions</li>
+                </ul>
+            </div>
+
+            <div style="border-top:1px solid rgba(255,255,255,0.15);padding-top:24px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="display:flex;">
+                        @foreach (var i in new[] { "A", "B", "C", "D" })
+                        {
+                            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:2px solid white;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:white;">@i</div>
+                        }
+                    </div>
+                    <div>
+                        <div class="stars" style="color:#fbbf24;font-size:0.85rem;">★★★★★</div>
+                        <div style="font-size:0.8rem;opacity:0.75;">Loved by 1,000+ readers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Form -->
+        <div>
+            @RenderBody()
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js"></script>
+    <script>
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

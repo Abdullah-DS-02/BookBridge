@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — " : "")BookBridge</title>
+    <meta name="description" content="BookBridge — Pakistan's premier book marketplace. Buy, sell, borrow, donate and exchange books." />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="@(Context.Request.Path.StartsWithSegments("/Admin") ? "admin-body" : "")">
+    <!-- Ambient Mouse Follower -->
+    <div class="mouse-follower" id="mouseFollower"></div>
+
+    <!-- Ambient background orbs -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Navbar -->
+    <partial name="_Navbar" />
+
+
+    <!-- Toast Notifications -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999">
+        @if (TempData["Success"] != null)
+        {
+            <div class="toast bb-toast show" role="alert">
+                <div class="toast-header border-0">
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    <strong class="me-auto">Success</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">@TempData["Success"]</div>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="toast bb-toast show" role="alert">
+                <div class="toast-header border-0">
+                    <i class="bi bi-x-circle-fill text-danger me-2"></i>
+                    <strong class="me-auto">Error</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+                <div class="toast-body">@TempData["Error"]</div>
+            </div>
+        }
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        @RenderBody()
+    </main>
+
+    <!-- Footer -->
+    <footer class="bb-footer">
+        <div class="container">
+            <div class="row g-5 mb-5">
+                <div class="col-lg-4">
+                    <div class="footer-brand mb-4">
+                        <div class="brand-icon me-2"><i class="bi bi-book-half"></i></div>
+                        <span class="fw-bold fs-4">Book<strong>Bridge</strong></span>
+                    </div>
+                    <p class="text-muted footer-desc">Pakistan's first complete book ecosystem. Buy, sell, borrow, donate, and exchange books with a trusted community of readers.</p>
+                    <div class="social-links mt-4">
+                        <a href="#" class="social-btn"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-btn"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h6 class="footer-heading">Platform</h6>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Books" asp-action="Index">Browse Books</a></li>
+                        <li><a asp-controller="Books" asp-action="Create">List a Book</a></li>
+                        <li><a asp-controller="Home" asp-action="About">About Us</a></li>
+                        <li><a asp-controller="Home" asp-action="FAQ">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h6 class="footer-heading">Explore</h6>
+                    <ul class="footer-links">
+                        <li><a asp-controller="Books" asp-action="Index" asp-route-TransactionType="Sell">Buy Books</a></li>
+                        <li><a asp-controller="Books" asp-action="Index" asp-route-TransactionType="Borrow">Borrow Books</a></li>
+                        <li><a asp-controller="Books" asp-action="Index" asp-route-TransactionType="Donate">Donate</a></li>
+                        <li><a asp-controller="Books" asp-action="Index" asp-route-TransactionType="Exchange">Exchange</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="footer-heading">Stay in the loop</h6>
+                    <p class="text-muted small">Get notified about new books and features.</p>
+                    <div class="footer-subscribe">
+                        <input type="email" id="newsletterEmail" class="form-control bb-input" placeholder="your@email.com" />
+                        <button id="newsletterSubscribeBtn" class="btn bb-btn-primary">Subscribe</button>
+                    </div>
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center gap-2 text-muted small">
+                            <i class="bi bi-shield-check text-success"></i>
+                            <span>Secure transactions with identity verification</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span class="text-muted small">© 2025 BookBridge. All rights reserved.</span>
+                <div class="d-flex gap-3">
+                    <a asp-controller="Home" asp-action="Privacy" class="text-muted small">Privacy Policy</a>
+                    <a asp-controller="Home" asp-action="Terms" class="text-muted small">Terms of Service</a>
+                    <a asp-controller="Home" asp-action="Contact" class="text-muted small">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+        <script src="~/js/notifications.js" asp-append-version="true"></script>
+    }
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,268 @@
+@model BookBridge.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+}
+
+<div class="auth-card">
+    <div class="auth-header">
+        <div class="brand-icon mb-3" style="width:48px;height:48px;font-size:1.4rem;margin:0 auto;">
+            <i class="bi bi-book-half"></i>
+        </div>
+        <h1 class="auth-title">Join BookBridge</h1>
+        <p class="auth-subtitle">Create your free account and start reading</p>
+    </div>
+
+    <!-- Error Alert -->
+    <div id="authErrorMessage" class="alert alert-danger rounded-3 mb-4 d-none"></div>
+
+    <form asp-action="Register" method="post" id="registerForm">
+        <input type="hidden" name="FirebaseIdToken" id="firebaseIdToken" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+
+        <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <div class="input-icon-wrap">
+                <i class="bi bi-person input-icon"></i>
+                <input asp-for="FullName" class="form-control bb-input input-with-icon"
+                       placeholder="Your full name" autocomplete="name" required />
+            </div>
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <div class="input-icon-wrap">
+                <i class="bi bi-envelope input-icon"></i>
+                <input asp-for="Email" id="emailInput" type="email" class="form-control bb-input input-with-icon"
+                       placeholder="your@email.com" autocomplete="email" required />
+            </div>
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Phone Number</label>
+                <input asp-for="PhoneNumber" class="form-control bb-input" placeholder="03XX-XXXXXXX" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">City</label>
+                <select asp-for="City" class="form-select bb-input">
+                    <option value="">Select city</option>
+                    @foreach (var city in new[] { "Lahore", "Karachi", "Islamabad", "Rawalpindi", "Faisalabad", "Multan", "Peshawar", "Quetta", "Sialkot", "Other" })
+                    {
+                        <option value="@city">@city</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="input-icon-wrap">
+                <i class="bi bi-lock input-icon"></i>
+                <input asp-for="Password" type="password" class="form-control bb-input input-with-icon"
+                       placeholder="Min. 8 characters" id="regPassword" autocomplete="new-password" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Confirm Password</label>
+            <div class="input-icon-wrap">
+                <i class="bi bi-lock-fill input-icon"></i>
+                <input asp-for="ConfirmPassword" type="password" class="form-control bb-input input-with-icon"
+                       placeholder="Re-enter password" id="confirmPassword" autocomplete="new-password" required />
+                <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-4">
+            <div class="form-check">
+                <input asp-for="AgreeToTerms" class="form-check-input" type="checkbox" required />
+                <label class="form-check-label" style="font-size:0.85rem;">
+                    I agree to the <a asp-controller="Home" asp-action="Terms" target="_blank" class="fw-600">Terms of Service</a> and <a asp-controller="Home" asp-action="Privacy" target="_blank" class="fw-600">Privacy Policy</a>.
+                    I understand that my identity may be verified for security.
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn bb-btn-primary w-100 btn-lg mb-3 d-flex align-items-center justify-content-center gap-2">
+            <span>Create Free Account</span> <i class="bi bi-arrow-right" id="submitIcon"></i>
+        </button>
+
+        <div class="d-flex align-items-center my-3">
+            <hr class="flex-grow-1 text-muted">
+            <span class="px-3 text-muted small text-uppercase fw-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Or continue with</span>
+            <hr class="flex-grow-1 text-muted">
+        </div>
+
+        <button type="button" id="googleSignUpBtn" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 py-2 border rounded-3 text-dark fw-semibold" style="background:#fff; border-color:#e2e8f0; font-size: 0.95rem; transition: all 0.2s ease;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.5 24c0-1.61-.15-3.16-.42-4.68H24v9.09h12.66c-.55 2.91-2.19 5.37-4.66 7.02l7.24 5.61C43.5 36.88 46.5 30.9 46.5 24z"/>
+                <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z"/>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.24-5.61c-2.11 1.41-4.8 2.25-8.65 2.25-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            <span>Google</span>
+        </button>
+
+        <div class="text-center mt-4">
+            <span class="text-muted" style="font-size:0.875rem;">Already have an account?</span>
+            <a asp-action="Login" class="ms-1 fw-600" style="font-size:0.875rem;">Sign in</a>
+        </div>
+
+        <div class="text-center mt-4">
+            <div class="d-flex align-items-center gap-2 justify-content-center text-muted" style="font-size:0.8rem;">
+                <i class="bi bi-shield-check text-success"></i>
+                <span>Your data is encrypted & secure</span>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script type="module">
+        import { auth } from "/js/firebase-config.js";
+        import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const registerForm = document.getElementById("registerForm");
+        const emailInput = document.getElementById("emailInput");
+        const passwordInput = document.getElementById("regPassword");
+        const confirmPasswordInput = document.getElementById("confirmPassword");
+        const firebaseIdTokenInput = document.getElementById("firebaseIdToken");
+        const errorAlert = document.getElementById("authErrorMessage");
+        const submitBtn = document.getElementById("submitBtn");
+        const submitIcon = document.getElementById("submitIcon");
+        const googleBtn = document.getElementById("googleSignUpBtn");
+
+        function showError(message) {
+            errorAlert.textContent = message;
+            errorAlert.classList.remove("d-none");
+            submitBtn.disabled = false;
+            submitBtn.querySelector("span").textContent = "Create Free Account";
+            submitIcon.className = "bi bi-arrow-right";
+        }
+
+        function clearError() {
+            errorAlert.classList.add("d-none");
+            errorAlert.textContent = "";
+        }
+
+        // Email/Password Signup
+        registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearError();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (password !== confirmPassword) {
+                showError("Passwords do not match.");
+                return;
+            }
+
+            if (password.length < 8) {
+                showError("Password must be at least 8 characters long.");
+                return;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.querySelector("span").textContent = "Creating Account...";
+            submitIcon.className = "bi bi-arrow-repeat spin";
+
+            try {
+                // 1. Create User in Firebase
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Retrieve Firebase ID Token
+                const idToken = await user.getIdToken();
+                firebaseIdTokenInput.value = idToken;
+
+                // 3. Submit form to ASP.NET MVC backend
+                registerForm.submit();
+            } catch (error) {
+                console.error("Firebase auth registration error:", error);
+                let msg = "Failed to create account. Please try again.";
+                if (error.code === "auth/email-already-in-use") {
+                    msg = "This email address is already in use.";
+                } else if (error.code === "auth/invalid-email") {
+                    msg = "Please enter a valid email address.";
+                } else if (error.code === "auth/weak-password") {
+                    msg = "The password is too weak. Please use a stronger password.";
+                }
+                showError(msg);
+            }
+        });
+
+        // Google Authentication (Signup)
+        googleBtn.addEventListener("click", async () => {
+            clearError();
+            googleBtn.disabled = true;
+            googleBtn.style.opacity = "0.7";
+            const originalGoogleText = googleBtn.querySelector("span").textContent;
+            googleBtn.querySelector("span").textContent = "Connecting...";
+
+            try {
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                const idToken = await result.user.getIdToken();
+
+                // Call GoogleLogin backend endpoint (shares login & signup flow seamlessly)
+                const response = await fetch("/Account/GoogleLogin", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ idToken: idToken })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = data.redirectUrl || "/Dashboard";
+                } else {
+                    showError(data.message || "Google Sign-Up failed on backend.");
+                    googleBtn.disabled = false;
+                    googleBtn.style.opacity = "1";
+                    googleBtn.querySelector("span").textContent = originalGoogleText;
+                }
+            } catch (error) {
+                console.error("Google auth error:", error);
+                let msg = "Google Sign-Up was cancelled or failed.";
+                if (error.code === "auth/popup-blocked") {
+                    msg = "Pop-up blocked by browser. Please enable pop-ups for BookBridge.";
+                }
+                showError(msg);
+                googleBtn.disabled = false;
+                googleBtn.style.opacity = "1";
+                googleBtn.querySelector("span").textContent = originalGoogleText;
+            }
+        });
+    </script>
+
+    <style>
+        .spin {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @@keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        #googleSignUpBtn:hover {
+            background-color: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+    </style>
+}

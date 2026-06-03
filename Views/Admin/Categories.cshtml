@@ -1,0 +1,53 @@
+@* Admin/Categories.cshtml *@
+@model List<BookBridge.Models.Entities.Category>
+@{
+    ViewData["Title"] = "Categories";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="analytics-card p-4">
+            <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:20px;">Add Category</h5>
+            <form asp-action="AddCategory" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input name="name" class="form-control bb-input" placeholder="e.g. Science Fiction" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control bb-input" rows="2"
+                              placeholder="Brief description..."></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Bootstrap Icon Class</label>
+                    <input name="icon" class="form-control bb-input" placeholder="bi-book" value="bi-book" />
+                    <div class="form-text">Use any <a href="https://icons.getbootstrap.com" target="_blank">Bootstrap Icon</a> class</div>
+                </div>
+                <button type="submit" class="btn bb-btn-primary w-100">
+                    <i class="bi bi-plus-lg me-2"></i>Add Category
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:16px;">All Categories</h5>
+        <div class="row g-3">
+            @foreach (var cat in Model)
+            {
+                <div class="col-6 col-md-4">
+                    <div class="analytics-card p-4 text-center">
+                        <i class="bi @(cat.Icon ?? "bi-book")" style="font-size:1.8rem;color:var(--primary);margin-bottom:10px;display:block;"></i>
+                        <div style="font-weight:700;font-size:0.9rem;">@cat.Name</div>
+                        @if (!string.IsNullOrEmpty(cat.Description))
+                        {
+                            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">@cat.Description</div>
+                        }
+                        <div style="font-size:0.8rem;color:var(--primary);margin-top:8px;font-weight:600;">@cat.Books.Count books</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

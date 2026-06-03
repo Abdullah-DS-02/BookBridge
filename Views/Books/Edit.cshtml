@@ -1,0 +1,6 @@
+@model BookBridge.Models.ViewModels.BookCreateViewModel
+@{
+    ViewData["Title"] = "Edit Book";
+    ViewBag.BookId = ViewBag.BookId;
+}
+@await Html.PartialAsync("Create", Model)

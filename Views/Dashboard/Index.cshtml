@@ -1,0 +1,180 @@
+@model BookBridge.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!-- Welcome Header -->
+<div class="d-flex justify-content-between align-items-start mb-5 flex-wrap gap-3">
+    <div>
+        <h1 style="font-family:var(--font-body);font-size:1.8rem;font-weight:600;margin-bottom:4px;">
+            Good @(DateTime.Now.Hour < 12 ? "Morning" : DateTime.Now.Hour < 17 ? "Afternoon" : "Evening"),
+            @Model.User.FullName.Split(' ')[0] 👋
+        </h1>
+        <p class="text-muted mb-0">Here's what's happening with your books today.</p>
+    </div>
+    <a asp-controller="Books" asp-action="Create" class="btn bb-btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>List a Book
+    </a>
+</div>
+
+<!-- Analytics Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-12 col-md-4">
+        <div class="analytics-card">
+            <div class="analytics-card-icon icon-blue">
+                <i class="bi bi-collection"></i>
+            </div>
+            <div class="analytics-value">@Model.TotalBooksListed</div>
+            <div class="analytics-label">Books Listed</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="analytics-card">
+            <div class="analytics-card-icon icon-amber">
+                <i class="bi bi-clock"></i>
+            </div>
+            <div class="analytics-value">@Model.ActiveBorrows</div>
+            <div class="analytics-label">Active Borrows</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="analytics-card">
+            <div class="analytics-card-icon icon-violet">
+                <i class="bi bi-bell"></i>
+            </div>
+            <div class="analytics-value">@Model.PendingRequests</div>
+            <div class="analytics-label">Pending Requests</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Grid -->
+<div class="row g-4">
+
+    <!-- Recent Requests -->
+    <div class="col-lg-7">
+        <div class="analytics-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h6 style="font-family:var(--font-body);font-weight:700;margin-bottom:0;">Recent Requests</h6>
+                <a asp-controller="Dashboard" asp-action="Requests" class="text-muted small">View all →</a>
+            </div>
+
+            @if (Model.RecentRequests.Any())
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var req in Model.RecentRequests)
+                    {
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-3"
+                             style="background:rgba(248,250,255,0.8);border:1px solid var(--border);">
+                            <img src="@(req.Borrower?.ProfilePicture ?? "/images/default-avatar.png")"
+                                 alt="@req.Borrower?.FullName"
+                                 style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0;"
+                                 onerror="this.src='/images/default-avatar.png'" />
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-weight:600;font-size:0.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                    @req.Borrower?.FullName wants to borrow
+                                </div>
+                                <div style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                                    @req.Book?.Title · @req.BorrowDays days
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column align-items-end gap-1">
+                                <span class="status-badge badge-@req.Status.ToString().ToLower()">@req.Status</span>
+                                @if (req.Status == BookBridge.Models.Entities.RequestStatus.Pending)
+                                {
+                                    <div class="d-flex gap-1">
+                                        <form asp-controller="Books" asp-action="ApproveBorrow" method="post">
+                                            <input type="hidden" name="requestId" value="@req.Id" />
+                                            <button type="submit" class="btn btn-success btn-sm py-0 px-2" style="font-size:0.7rem;">✓</button>
+                                        </form>
+                                        <form asp-controller="Books" asp-action="RejectBorrow" method="post">
+                                            <input type="hidden" name="requestId" value="@req.Id" />
+                                            <input type="hidden" name="reason" value="Declined" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2" style="font-size:0.7rem;">✕</button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox" style="font-size:2.5rem;display:block;margin-bottom:8px;opacity:0.4;"></i>
+                    No borrow requests yet
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="col-lg-5">
+        <!-- Recent Notifications -->
+        <div class="analytics-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 style="font-family:var(--font-body);font-weight:700;margin-bottom:0;">Notifications</h6>
+                <a asp-controller="Dashboard" asp-action="Notifications" class="text-muted small">All →</a>
+            </div>
+
+            @if (Model.Notifications.Any())
+            {
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var notif in Model.Notifications)
+                    {
+                        <div class="d-flex gap-3 p-2 rounded-2 @(!notif.IsRead ? "bg-primary bg-opacity-5" : "")">
+                            <div style="width:8px;height:8px;border-radius:50%;background:@(notif.IsRead ? "var(--border)" : "var(--primary)");flex-shrink:0;margin-top:6px;"></div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:0.85rem;font-weight:@(notif.IsRead ? "400" : "600");">@notif.Title</div>
+                                <div style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">@notif.Body</div>
+                                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">@notif.CreatedAt.ToString("dd MMM, hh:mm tt")</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-3 text-muted" style="font-size:0.875rem;">
+                    <i class="bi bi-bell-slash" style="font-size:1.5rem;display:block;margin-bottom:6px;opacity:0.4;"></i>
+                    No notifications
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- My Books Preview -->
+    <div class="col-12">
+        <div class="analytics-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h6 style="font-family:var(--font-body);font-weight:700;margin-bottom:0;">My Listed Books</h6>
+                <a asp-controller="Dashboard" asp-action="MyBooks" class="text-muted small">Manage all →</a>
+            </div>
+
+            @if (Model.MyBooks.Any())
+            {
+                <div class="row g-3">
+                    @foreach (var book in Model.MyBooks)
+                    {
+                        <div class="col-6 col-md-4 col-lg-2">
+                            @await Html.PartialAsync("_BookCard", book)
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div style="font-size:3rem;margin-bottom:12px;">📚</div>
+                    <h6>No books listed yet</h6>
+                    <p class="text-muted small">Share your books with the community!</p>
+                    <a asp-controller="Books" asp-action="Create" class="btn bb-btn-primary btn-sm mt-2">
+                        <i class="bi bi-plus-lg me-1"></i>List First Book
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

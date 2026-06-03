@@ -1,0 +1,61 @@
+@* Dashboard/Notifications.cshtml *@
+@model List<BookBridge.Models.Entities.Notification>
+@{
+    ViewData["Title"] = "Notifications";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<h2 style="font-family:var(--font-body);font-weight:600;margin-bottom:20px;">Notifications</h2>
+
+@if (Model.Any())
+{
+    <div class="analytics-card">
+        <div class="d-flex flex-column">
+            @foreach (var notif in Model)
+            {
+                var iconMap = new Dictionary<string, string> {
+                    {"success","bi-check-circle-fill text-success"},
+                    {"warning","bi-exclamation-triangle-fill text-warning"},
+                    {"danger","bi-x-circle-fill text-danger"},
+                    {"borrow","bi-clock-fill text-warning"},
+                    {"info","bi-info-circle-fill text-primary"}
+                };
+                var icon = iconMap.GetValueOrDefault(notif.Type, "bi-bell-fill text-primary");
+
+                <div class="d-flex gap-3 p-4 @(!notif.IsRead ? "bg-primary bg-opacity-5" : "")"
+                     style="border-bottom:1px solid var(--border);">
+                    <div style="width:36px;height:36px;border-radius:50%;background:rgba(37,99,235,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="bi @icon"></i>
+                    </div>
+                    <div style="flex:1;">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div style="font-weight:@(notif.IsRead ? "400" : "700");font-size:0.9rem;">@notif.Title</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap;margin-left:12px;">
+                                @notif.CreatedAt.ToString("dd MMM, h:mm tt")
+                            </div>
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:3px;">@notif.Body</div>
+                        @if (!string.IsNullOrEmpty(notif.Link))
+                        {
+                            <a href="@notif.Link" style="font-size:0.8rem;font-weight:600;margin-top:6px;display:inline-block;">
+                                View details →
+                            </a>
+                        }
+                    </div>
+                    @if (!notif.IsRead)
+                    {
+                        <div style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:6px;"></div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="bi bi-bell-slash" style="font-size:3rem;color:var(--text-muted);display:block;margin-bottom:12px;"></i>
+        <h5>All caught up!</h5>
+        <p class="text-muted">You have no notifications right now.</p>
+    </div>
+}

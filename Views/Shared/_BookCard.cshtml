@@ -1,0 +1,89 @@
+@model BookBridge.Models.ViewModels.BookCardViewModel
+
+<a asp-controller="Books" asp-action="Details" asp-route-id="@Model.Id" class="text-decoration-none">
+    <div class="book-card">
+        <div class="book-img-wrap">
+            <img src="@(Model.PrimaryImage ?? "/images/book-placeholder.png")"
+                 alt="@Model.Title" class="book-img"
+                 onerror="this.src='/images/book-placeholder.png'" />
+
+            <span class="book-type-badge badge-@Model.TransactionType.ToString().ToLower()">
+                @(Model.TransactionType switch {
+                    BookBridge.Models.Entities.TransactionType.Sell => "For Sale",
+                    BookBridge.Models.Entities.TransactionType.Borrow => "Borrow",
+                    BookBridge.Models.Entities.TransactionType.Donate => "Donate",
+                    BookBridge.Models.Entities.TransactionType.Exchange => "Exchange",
+                    _ => Model.TransactionType.ToString()
+                })
+            </span>
+
+            <span class="book-condition-badge">@Model.Condition</span>
+
+            @if (Model.Status != BookBridge.Models.Entities.BookStatus.Available)
+            {
+                <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;">
+                    <span class="status-badge"
+                          style="background:rgba(255,255,255,0.9);color:var(--text-primary);padding:6px 14px;font-size:0.75rem;">
+                        @Model.Status
+                    </span>
+                </div>
+            }
+        </div>
+
+        <div class="book-card-body">
+            <div class="book-title">@Model.Title</div>
+            <div class="book-author">by @Model.Author</div>
+
+            <div class="book-meta">
+                <div>
+                    @if (Model.TransactionType == BookBridge.Models.Entities.TransactionType.Sell && Model.Price.HasValue)
+                    {
+                        <div class="book-price">Rs. @Model.Price.Value.ToString("N0")</div>
+                    }
+                    else if (Model.TransactionType == BookBridge.Models.Entities.TransactionType.Donate)
+                    {
+                        <div class="book-price free"><i class="bi bi-heart-fill me-1"></i>Donate</div>
+                    }
+                    else if (Model.TransactionType == BookBridge.Models.Entities.TransactionType.Borrow)
+                    {
+                        <div class="book-price" style="color:var(--amber);font-size:0.85rem;">
+                            <i class="bi bi-clock me-1"></i>@Model.BorrowDurationDays days
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="book-price exchange"><i class="bi bi-arrow-left-right me-1"></i>Exchange</div>
+                    }
+                </div>
+
+                <div class="book-owner">
+                    <img src="@(Model.OwnerPicture ?? "/images/default-avatar.png")"
+                         alt="@Model.OwnerName" class="owner-img"
+                         onerror="this.src='/images/default-avatar.png'" />
+                    <div>
+                        <div class="owner-name">@Model.OwnerName</div>
+                        <div class="stars stars-sm">
+                            @for (int i = 1; i <= 5; i++) { @(i <= Math.Round(Model.OwnerRating) ? "★" : "☆") }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="book-footer">
+            <span class="book-city">
+                @if (!string.IsNullOrEmpty(Model.City))
+                {
+                    <i class="bi bi-geo-alt me-1"></i>@Model.City
+                }
+                else
+                {
+                    <span>@Model.CategoryName</span>
+                }
+            </span>
+            <span class="book-views">
+                <i class="bi bi-eye me-1"></i>@Model.ViewCount
+            </span>
+        </div>
+    </div>
+</a>

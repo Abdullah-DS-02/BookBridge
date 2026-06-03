@@ -1,0 +1,62 @@
+@* Admin/Books.cshtml *@
+@model List<BookBridge.Models.Entities.Book>
+@{
+    ViewData["Title"] = "Book Management";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<h2 style="font-family:var(--font-body);font-weight:600;margin-bottom:20px;">Book Management</h2>
+
+<div class="admin-table">
+    <table class="table">
+        <thead>
+            <tr><th>Book</th><th>Owner</th><th>Type</th><th>Price</th><th>Views</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var book in Model)
+            {
+                var img = book.Images?.FirstOrDefault(i => i.IsPrimary)?.ImagePath ?? book.Images?.FirstOrDefault()?.ImagePath;
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="@(img ?? "/images/book-placeholder.png")"
+                                 style="width:36px;height:48px;object-fit:cover;border-radius:4px;"
+                                 onerror="this.src='/images/book-placeholder.png'" />
+                            <div>
+                                <div style="font-weight:600;font-size:0.875rem;">@book.Title</div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">@book.Author</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size:0.875rem;">@book.Owner?.FullName</td>
+                    <td><span class="chip" style="font-size:0.65rem;">@book.TransactionType</span></td>
+                    <td style="font-size:0.875rem;">@(book.Price.HasValue ? "Rs. " + book.Price.Value.ToString("N0") : "—")</td>
+                    <td style="font-size:0.875rem;">@book.ViewCount</td>
+                    <td><span class="status-badge badge-@book.Status.ToString().ToLower()">@book.Status</span></td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <form asp-action="FeatureBook" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@book.Id" />
+                                <button type="submit" class="btn btn-sm @(book.IsFeatured ? "btn-warning" : "bb-btn-ghost")"
+                                        title="@(book.IsFeatured ? "Remove Feature" : "Feature Book")">
+                                    <i class="bi bi-star@(book.IsFeatured ? "-fill" : "")"></i>
+                                </button>
+                            </form>
+                            <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id"
+                               class="btn btn-sm bb-btn-ghost" target="_blank">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <form asp-action="RemoveBook" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@book.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        data-confirm="Remove '@book.Title'?">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

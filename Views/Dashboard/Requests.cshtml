@@ -1,0 +1,111 @@
+@* Dashboard/Requests.cshtml *@
+@model List<BookBridge.Models.Entities.BorrowRequest>
+@{
+    ViewData["Title"] = "Borrow Requests";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+
+<h2 style="font-family:var(--font-body);font-weight:600;margin-bottom:4px;">Borrow Requests</h2>
+<p class="text-muted mb-4">Manage all incoming and outgoing borrow requests.</p>
+
+@if (Model.Any())
+{
+    <div class="admin-table">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Requester</th>
+                    <th>Duration</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var req in Model)
+                {
+                    bool isOwner = req.OwnerId == currentUserId;
+                    <tr>
+                        <td>
+                            <div style="font-weight:600;font-size:0.875rem;">@req.Book?.Title</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);">@req.Book?.Author</div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="@(isOwner ? req.Borrower?.ProfilePicture : req.Owner?.ProfilePicture) ?? /images/default-avatar.png"
+                                     style="width:32px;height:32px;border-radius:50%;object-fit:cover;"
+                                     onerror="this.src='/images/default-avatar.png'" />
+                                <div>
+                                    <div style="font-size:0.875rem;font-weight:500;">@(isOwner ? req.Borrower?.FullName : req.Owner?.FullName)</div>
+                                    <div style="font-size:0.75rem;color:var(--text-muted);">@(isOwner ? "Wants to borrow" : "Book owner")</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-size:0.875rem;">@req.BorrowDays days</td>
+                        <td style="font-size:0.8rem;color:var(--text-muted);">@req.RequestedAt.ToString("dd MMM yyyy")</td>
+                        <td><span class="status-badge badge-@req.Status.ToString().ToLower()">@req.Status</span></td>
+                        <td>
+                            <div class="d-flex gap-1 flex-wrap">
+                                @if (isOwner && req.Status == BookBridge.Models.Entities.RequestStatus.Pending)
+                                {
+                                    <form asp-controller="Books" asp-action="ApproveBorrow" method="post" class="d-inline">
+                                        <input type="hidden" name="requestId" value="@req.Id" />
+                                        <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                    </form>
+                                    <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#rejectModal_@req.Id">Reject</button>
+                                }
+                                @if (!isOwner && req.Status == BookBridge.Models.Entities.RequestStatus.Approved)
+                                {
+                                    <form asp-controller="Books" asp-action="ReturnBook" method="post" class="d-inline">
+                                        <input type="hidden" name="requestId" value="@req.Id" />
+                                        <button type="submit" class="btn bb-btn-primary btn-sm">Mark Returned</button>
+                                    </form>
+                                }
+                                @if (!string.IsNullOrEmpty(req.Message))
+                                {
+                                    <button class="btn btn-sm bb-btn-ghost" title="@req.Message">
+                                        <i class="bi bi-chat-text"></i>
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+
+                    @if (isOwner && req.Status == BookBridge.Models.Entities.RequestStatus.Pending)
+                    {
+                        <div class="modal fade" id="rejectModal_@req.Id" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                <div class="modal-content rounded-4">
+                                    <div class="modal-header border-0">
+                                        <h6 class="modal-title fw-bold">Reject Request</h6>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form asp-controller="Books" asp-action="RejectBorrow" method="post">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="requestId" value="@req.Id" />
+                                            <textarea name="reason" class="form-control bb-input" rows="3" placeholder="Reason for rejection..."></textarea>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="submit" class="btn btn-danger btn-sm">Confirm Reject</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="bi bi-inbox" style="font-size:3rem;color:var(--text-muted);display:block;margin-bottom:12px;"></i>
+        <h5>No borrow requests</h5>
+        <p class="text-muted">When someone requests to borrow your book, it will appear here.</p>
+    </div>
+}

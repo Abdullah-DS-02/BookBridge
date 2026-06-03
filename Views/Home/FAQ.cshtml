@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "FAQ";
+}
+
+<div class="page-wrap">
+    <div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:60px 0;text-align:center;">
+        <div class="container" style="position:relative;">
+            <div style="position:absolute;left:0;top:-20px;">
+                <a href="javascript:history.back()" class="text-secondary" style="font-size:1.5rem;display:inline-flex;align-items:center;transition:var(--transition);"><i class="bi bi-arrow-left"></i></a>
+            </div>
+            <div class="section-label">Help Center</div>
+            <h1 class="section-title">Frequently Asked Questions</h1>
+            <p class="section-subtitle mt-3">Find answers to the most common questions about BookBridge.</p>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                @{
+                    var faqs = new[] {
+                        ("General", new[] {
+                            ("What is BookBridge?", "BookBridge is Pakistan's first complete book ecosystem where users can buy, sell, borrow, donate, and exchange books with verified readers across the country."),
+                            ("Is BookBridge free to use?", "Creating an account and browsing books is completely free. BookBridge charges a small service fee only on successful paid transactions."),
+                            ("How do I get started?", "Simply create a free account, complete your profile, and start browsing or listing books. It takes less than 2 minutes to sign up.")
+                        }),
+                        ("Buying & Selling", new[] {
+                            ("How do I buy a book?", "Browse books, find one you like, and click 'Chat to Buy' to message the seller directly. Negotiate price and arrange payment through our secure system."),
+                            ("How do I list a book for sale?", "After logging in, click 'List a Book', fill in the details, upload photos, set your price, and publish. Your book goes live instantly."),
+                            ("How do payments work?", "Payments are handled securely through our platform. We support wallet transfers and will be integrating Stripe for card payments soon.")
+                        }),
+                        ("Borrowing", new[] {
+                            ("How does borrowing work?", "Find a book listed as 'Borrow', click 'Request to Borrow', set the duration (up to the owner's maximum), and send a message. The owner approves or rejects your request."),
+                            ("What happens if I return a book late?", "You'll receive overdue alerts and the owner will be notified. Repeated late returns may affect your rating and ability to borrow in the future."),
+                            ("Is there a security deposit for borrowing?", "Some owners may require a refundable security deposit which is returned when you return the book on time.")
+                        }),
+                        ("Safety & Trust", new[] {
+                            ("How does identity verification work?", "Users can submit their CNIC number for identity verification. Verified users display a blue checkmark badge on their profile, building trust in the community."),
+                            ("What if someone scams me?", "BookBridge has a fraud monitoring system and you can report any suspicious activity. Verified identities mean scammers can be held accountable."),
+                            ("How do ratings and reviews work?", "After a transaction, both parties can leave a star rating and written review. These reviews build each user's reputation on the platform.")
+                        })
+                    };
+                }
+
+                @foreach (var (category, items) in faqs)
+                {
+                    <h5 style="font-family:var(--font-body);font-weight:700;color:var(--primary);margin:40px 0 16px;">@category</h5>
+                    <div class="accordion mb-4" id="faq_@category.Replace(" ", "")">
+                        @for (int i = 0; i < items.Length; i++)
+                        {
+                            var (q, a) = items[i];
+                            var id = $"faq_{category.Replace(" ", "")}_{i}";
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#@id"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        @q
+                                    </button>
+                                </h6>
+                                <div id="@id" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        @a
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <div class="text-center mt-5 p-5 rounded-3" style="background:linear-gradient(135deg,rgba(37,99,235,0.05),rgba(79,70,229,0.05));border:1px solid rgba(37,99,235,0.1);">
+                    <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:8px;">Still have questions?</h5>
+                    <p class="text-muted mb-4">Our support team is here to help you get the most out of BookBridge.</p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a asp-controller="Home" asp-action="Contact" class="btn bb-btn-primary">Contact Support</a>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <a asp-controller="Dashboard" asp-action="Support" class="btn bb-btn-ghost">Submit a Ticket</a>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Register" class="btn bb-btn-ghost">Create Account</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,450 @@
+@model BookBridge.Models.ViewModels.BookDetailsViewModel
+@using BookBridge.Models.Entities
+@{
+    ViewData["Title"] = Model.Book.Title;
+    var book = Model.Book;
+    var primaryImage = book.Images.FirstOrDefault(i => i.IsPrimary)?.ImagePath
+                    ?? book.Images.FirstOrDefault()?.ImagePath
+                    ?? "/images/book-placeholder.png";
+}
+
+<div class="page-wrap">
+    <div class="container py-5">
+        <div class="row g-5">
+
+            <!-- ── Left: Images ────────────────────────── -->
+            <div class="col-lg-4">
+                <div style="position:sticky;top:calc(var(--nav-height) + 24px);">
+                    <!-- Primary Image -->
+                    <div style="border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-lg);aspect-ratio:3/4;background:#f1f5f9;margin-bottom:12px;">
+                        <img id="mainImage" src="@primaryImage" alt="@book.Title"
+                             style="width:100%;height:100%;object-fit:cover;cursor:zoom-in;"
+                             onclick="openLightbox(this.src)" />
+                    </div>
+
+                    <!-- Thumbnails -->
+                    @if (book.Images.Count > 1)
+                    {
+                        <div class="d-flex gap-2 flex-wrap">
+                            @foreach (var img in book.Images)
+                            {
+                                <div onclick="document.getElementById('mainImage').src='@img.ImagePath'"
+                                     style="width:64px;height:64px;border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;border:2px solid @(img.IsPrimary ? "var(--primary)" : "var(--border)");transition:var(--transition);">
+                                    <img src="@img.ImagePath" alt="Thumbnail"
+                                         style="width:100%;height:100%;object-fit:cover;" />
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!-- Owner Card -->
+                    <div class="bb-card p-4 mt-4">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <img src="@(book.Owner?.ProfilePicture ?? "/images/default-avatar.png")"
+                                 alt="@book.Owner?.FullName"
+                                 style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--border);"
+                                 onerror="this.src='/images/default-avatar.png'" />
+                            <div>
+                                <div style="font-weight:700;">@book.Owner?.FullName</div>
+                                <div class="stars" style="font-size:0.8rem;">
+                                    @for (int i = 1; i <= 5; i++) { @(i <= Math.Round(book.Owner?.AverageRating ?? 0) ? "★" : "☆") }
+                                    <span style="font-size:0.75rem;color:var(--text-muted);margin-left:4px;">(@(book.Owner?.TotalRatings ?? 0))</span>
+                                </div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">
+                                    <i class="bi bi-geo-alt me-1"></i>@(book.Owner?.City ?? "Pakistan")
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (book.Owner?.IsVerified == true)
+                        {
+                            <div class="d-flex align-items-center gap-2 p-2 rounded-2 mb-3"
+                                 style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);">
+                                <i class="bi bi-patch-check-fill text-success"></i>
+                                <span style="font-size:0.8rem;font-weight:600;color:var(--emerald);">Verified Identity</span>
+                            </div>
+                        }
+
+                        @if (!Model.IsOwner && User.Identity?.IsAuthenticated == true)
+                        {
+                            <form asp-controller="Books" asp-action="StartChat" method="post">
+                                <input type="hidden" name="sellerId" value="@book.OwnerId" />
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <button type="submit" class="btn bb-btn-ghost w-100">
+                                    <i class="bi bi-chat-dots me-2"></i>Message Owner
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Right: Details ──────────────────────── -->
+            <div class="col-lg-8">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb" style="font-size:0.85rem;">
+                        <li class="breadcrumb-item"><a asp-controller="Books" asp-action="Index">Browse</a></li>
+                        <li class="breadcrumb-item"><a asp-controller="Books" asp-action="Index" asp-route-Category="@book.CategoryId">@book.Category?.Name</a></li>
+                        <li class="breadcrumb-item active">@book.Title</li>
+                    </ol>
+                </nav>
+
+                <!-- Type + Status Badges -->
+                <div class="d-flex gap-2 flex-wrap mb-3">
+                    <span class="book-type-badge badge-@book.TransactionType.ToString().ToLower()" style="position:static;font-size:0.75rem;">
+                        @(book.TransactionType switch {
+                            TransactionType.Sell => "For Sale",
+                            TransactionType.Borrow => "Available to Borrow",
+                            TransactionType.Donate => "Free Donation",
+                            TransactionType.Exchange => "Exchange",
+                            _ => book.TransactionType.ToString()
+                        })
+                    </span>
+                    <span class="status-badge badge-@book.Status.ToString().ToLower()" style="font-size:0.75rem;padding:4px 12px;">@book.Status</span>
+                    @if (book.IsFeatured) { <span class="chip" style="font-size:0.7rem;"><i class="bi bi-star-fill me-1"></i>Featured</span> }
+                </div>
+
+                <h1 style="font-family:var(--font-body);font-size:2rem;font-weight:600;line-height:1.2;margin-bottom:8px;">@book.Title</h1>
+                <p style="font-size:1.05rem;color:var(--text-secondary);margin-bottom:20px;">by <strong>@book.Author</strong></p>
+
+                <!-- Price / Transaction Info -->
+                <div class="bb-card p-4 mb-4">
+                    @if (book.TransactionType == TransactionType.Sell && book.Price.HasValue)
+                    {
+                        <div style="font-family:var(--font-body);font-size:2.2rem;font-weight:600;color:var(--primary);">
+                            Rs. @book.Price.Value.ToString("N0")
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Negotiable price</div>
+                    }
+                    else if (book.TransactionType == TransactionType.Borrow)
+                    {
+                        <div class="d-flex align-items-center gap-4 flex-wrap">
+                            <div>
+                                <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);">Borrow Duration</div>
+                                <div style="font-family:var(--font-body);font-size:1.8rem;font-weight:600;color:var(--amber);">@book.BorrowDurationDays Days</div>
+                            </div>
+                            @if (book.DepositAmount.HasValue)
+                            {
+                                <div>
+                                    <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);">Security Deposit</div>
+                                    <div style="font-family:var(--font-body);font-size:1.8rem;font-weight:600;color:var(--text-primary);">Rs. @book.DepositAmount.Value.ToString("N0")</div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (book.TransactionType == TransactionType.Donate)
+                    {
+                        <div style="font-family:var(--font-body);font-size:1.8rem;font-weight:600;color:var(--emerald);">
+                            <i class="bi bi-heart-fill me-2"></i>Absolutely Free
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Donated with love — no payment required</div>
+                    }
+                    else if (book.TransactionType == TransactionType.Exchange)
+                    {
+                        <div style="font-family:var(--font-body);font-size:1.8rem;font-weight:600;color:var(--violet);">
+                            <i class="bi bi-arrow-left-right me-2"></i>Book Exchange
+                        </div>
+                        <div style="font-size:0.85rem;color:var(--text-muted);margin-top:4px;">Swap this with one of your books</div>
+                    }
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 flex-wrap mt-4">
+                        @if (!User.Identity?.IsAuthenticated ?? true)
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn bb-btn-primary">
+                                <i class="bi bi-lock me-2"></i>Login to @(book.TransactionType == TransactionType.Sell ? "Buy" : book.TransactionType == TransactionType.Borrow ? "Borrow" : "Get")
+                            </a>
+                        }
+                        else if (Model.IsOwner)
+                        {
+                            <a asp-controller="Books" asp-action="Edit" asp-route-id="@book.Id" class="btn bb-btn-ghost">
+                                <i class="bi bi-pencil me-2"></i>Edit Listing
+                            </a>
+                            <form asp-controller="Books" asp-action="Delete" asp-route-id="@book.Id" method="post">
+                                <button type="submit" class="btn btn-outline-danger"
+                                        data-confirm="Are you sure you want to remove this book?">
+                                    <i class="bi bi-trash me-2"></i>Remove
+                                </button>
+                            </form>
+                        }
+                        else if (book.TransactionType == TransactionType.Borrow && Model.CanBorrow)
+                        {
+                            <button class="btn bb-btn-primary" data-bs-toggle="modal" data-bs-target="#borrowModal">
+                                <i class="bi bi-clock me-2"></i>Request to Borrow
+                            </button>
+                        }
+                        else if (book.TransactionType == TransactionType.Sell && book.Status == BookStatus.Available)
+                        {
+                            <form asp-controller="Books" asp-action="StartChat" method="post">
+                                <input type="hidden" name="sellerId" value="@book.OwnerId" />
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <button type="submit" class="btn bb-btn-primary">
+                                    <i class="bi bi-chat-dots me-2"></i>Chat to Buy
+                                </button>
+                            </form>
+                        }
+                        else if (book.TransactionType == TransactionType.Donate && book.Status == BookStatus.Available)
+                        {
+                            <form asp-controller="Books" asp-action="StartChat" method="post">
+                                <input type="hidden" name="sellerId" value="@book.OwnerId" />
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <button type="submit" class="btn bb-btn-emerald">
+                                    <i class="bi bi-heart me-2"></i>Request This Book
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+
+                <!-- Borrow Countdown (if currently borrowed) -->
+                @if (Model.AvailableFrom.HasValue && book.Status == BookStatus.Borrowed)
+                {
+                    <div class="borrow-countdown mb-4" data-due-date="@Model.AvailableFrom.Value.ToString("O")">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-clock-history text-warning"></i>
+                            <strong style="font-size:0.9rem;">Currently Borrowed</strong>
+                        </div>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">
+                            This book will be available again on <strong>@Model.AvailableFrom.Value.ToString("dd MMM yyyy")</strong>
+                        </p>
+                        <div class="countdown-timer">
+                            <div class="countdown-unit">
+                                <div class="countdown-number" data-days>--</div>
+                                <div class="countdown-label">Days</div>
+                            </div>
+                            <div class="countdown-unit">
+                                <div class="countdown-number" data-hours>--</div>
+                                <div class="countdown-label">Hours</div>
+                            </div>
+                            <div class="countdown-unit">
+                                <div class="countdown-number" data-mins>--</div>
+                                <div class="countdown-label">Mins</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Book Details Table -->
+                <div class="bb-card p-4 mb-4">
+                    <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:20px;">Book Details</h5>
+                    <div class="row g-3">
+                        @{
+                            var details = new List<(string label, string? value)>
+                            {
+                                ("Category", book.Category?.Name),
+                                ("Condition", book.Condition.ToString()),
+                                ("Language", book.Language),
+                                ("Publisher", book.Publisher),
+                                ("Year", book.PublishedYear?.ToString()),
+                                ("Pages", book.Pages?.ToString()),
+                                ("ISBN", book.ISBN),
+                                ("City", book.City),
+                                ("Views", book.ViewCount.ToString()),
+                                ("Listed", book.CreatedAt.ToString("dd MMM yyyy"))
+                            };
+                        }
+                        @foreach (var (label, value) in details.Where(d => !string.IsNullOrEmpty(d.value)))
+                        {
+                            <div class="col-6">
+                                <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted);margin-bottom:2px;">@label</div>
+                                <div style="font-size:0.9rem;font-weight:500;">@value</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Description -->
+                @if (!string.IsNullOrEmpty(book.Description))
+                {
+                    <div class="bb-card p-4 mb-4">
+                        <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:16px;">About this Book</h5>
+                        <p style="color:var(--text-secondary);line-height:1.8;font-size:0.95rem;">@book.Description</p>
+                    </div>
+                }
+
+                <!-- Reviews Section -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 style="font-family:var(--font-body);font-weight:700;">
+                            Reviews <span style="color:var(--text-muted);font-size:0.9rem;">(@Model.Reviews.Count)</span>
+                        </h5>
+                        @if (User.Identity?.IsAuthenticated == true && !Model.IsOwner && !Model.HasReviewed)
+                        {
+                            <button class="btn bb-btn-ghost btn-sm" data-bs-toggle="modal" data-bs-target="#reviewModal">
+                                <i class="bi bi-star me-1"></i>Write a Review
+                            </button>
+                        }
+                    </div>
+
+                    @if (Model.Reviews.Any())
+                    {
+                        @foreach (var review in Model.Reviews.Take(5))
+                        {
+                            <div class="bb-card p-4 mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="@(review.Reviewer?.ProfilePicture ?? "/images/default-avatar.png")"
+                                             alt="@review.Reviewer?.FullName"
+                                             style="width:40px;height:40px;border-radius:50%;object-fit:cover;" />
+                                        <div>
+                                            <div style="font-weight:600;font-size:0.9rem;">@review.Reviewer?.FullName</div>
+                                            <div class="stars" style="font-size:0.85rem;">
+                                                @for (int i = 1; i <= 5; i++) { @(i <= review.Rating ? "★" : "☆") }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="font-size:0.8rem;color:var(--text-muted);">@review.CreatedAt.ToString("dd MMM yyyy")</div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(review.Comment))
+                                {
+                                    <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:0;line-height:1.6;">@review.Comment</p>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-chat-square-text" style="font-size:2rem;opacity:0.4;display:block;margin-bottom:8px;"></i>
+                            No reviews yet. Be the first to review!
+                        </div>
+                    }
+                </div>
+
+                <!-- Similar Books -->
+                @if (Model.SimilarBooks.Any())
+                {
+                    <div>
+                        <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:20px;">Similar Books</h5>
+                        <div class="row g-3">
+                            @foreach (var similar in Model.SimilarBooks)
+                            {
+                                <div class="col-6 col-md-3">
+                                    @await Html.PartialAsync("_BookCard", similar)
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Borrow Modal ──────────────────────────── -->
+<div class="modal fade" id="borrowModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:var(--radius-xl);border:none;box-shadow:var(--shadow-lg);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" style="font-family:var(--font-body);font-weight:700;">Request to Borrow</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Books" asp-action="BorrowRequest" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="BookId" value="@book.Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Borrow Duration (days)</label>
+                        <input type="number" name="BorrowDays" class="form-control bb-input"
+                               value="@book.BorrowDurationDays" min="1" max="@(book.BorrowDurationDays ?? 30)"
+                               required />
+                        @if (book.BorrowDurationDays.HasValue)
+                        {
+                            <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Maximum: @book.BorrowDurationDays days</div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Message to Owner (optional)</label>
+                        <textarea name="Message" class="form-control bb-input" rows="3"
+                                  placeholder="Introduce yourself and why you'd like to borrow this book..."></textarea>
+                    </div>
+
+                    @if (book.DepositAmount.HasValue)
+                    {
+                        <div class="p-3 rounded-2" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);">
+                            <div style="font-size:0.85rem;font-weight:600;color:var(--amber);">
+                                <i class="bi bi-info-circle me-2"></i>Security Deposit: Rs. @book.DepositAmount.Value.ToString("N0")
+                            </div>
+                            <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Refundable upon timely return</div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn bb-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn bb-btn-primary">
+                        <i class="bi bi-send me-2"></i>Send Request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ── Review Modal ──────────────────────────── -->
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:var(--radius-xl);border:none;box-shadow:var(--shadow-lg);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" style="font-family:var(--font-body);font-weight:700;">Write a Review</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-controller="Books" asp-action="SubmitReview" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="ReviewedUserId" value="@book.OwnerId" />
+                    <input type="hidden" name="BookId" value="@book.Id" />
+
+                    <div class="mb-4">
+                        <label class="form-label">Your Rating</label>
+                        <div class="star-rating-input">
+                            <input type="hidden" name="Rating" id="ratingValue" value="5" />
+                            <div class="d-flex gap-2">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <span data-star="@i"
+                                          style="font-size:2rem;cursor:pointer;color:var(--amber);transition:var(--transition);"
+                                          class="selected">★</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Your Review</label>
+                        <textarea name="Comment" class="form-control bb-input" rows="4"
+                                  placeholder="Share your experience with this seller/owner..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn bb-btn-ghost" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn bb-btn-primary">Submit Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Star rating
+    const stars = document.querySelectorAll('.star-rating-input [data-star]');
+    const ratingInput = document.getElementById('ratingValue');
+    let selectedRating = 5;
+
+    stars.forEach(star => {
+        star.addEventListener('mouseenter', () => {
+            const val = parseInt(star.dataset.star);
+            stars.forEach(s => s.style.opacity = parseInt(s.dataset.star) <= val ? '1' : '0.3');
+        });
+        star.addEventListener('click', () => {
+            selectedRating = parseInt(star.dataset.star);
+            ratingInput.value = selectedRating;
+            stars.forEach(s => s.style.opacity = parseInt(s.dataset.star) <= selectedRating ? '1' : '0.3');
+        });
+        star.addEventListener('mouseleave', () => {
+            stars.forEach(s => s.style.opacity = parseInt(s.dataset.star) <= selectedRating ? '1' : '0.3');
+        });
+    });
+</script>
+}

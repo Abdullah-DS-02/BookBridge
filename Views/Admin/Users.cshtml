@@ -1,0 +1,97 @@
+@* Admin/Users.cshtml *@
+@model List<BookBridge.Models.Entities.ApplicationUser>
+@{
+    ViewData["Title"] = "User Management";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 style="font-family:var(--font-body);font-weight:600;margin-bottom:4px;">User Management</h2>
+        <p class="text-muted mb-0">@Model.Count total users</p>
+    </div>
+</div>
+
+<div class="admin-table">
+    <table class="table">
+        <thead>
+            <tr><th>User</th><th>City</th><th>Rating</th><th>Joined</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <img src="@(user.ProfilePicture ?? "/images/default-avatar.png")"
+                                 style="width:36px;height:36px;border-radius:50%;object-fit:cover;"
+                                 onerror="this.src='/images/default-avatar.png'" />
+                            <div>
+                                <div style="font-weight:600;font-size:0.875rem;">@user.FullName</div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">@user.Email</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-size:0.875rem;">@(user.City ?? "—")</td>
+                    <td>
+                        <div class="stars" style="font-size:0.8rem;">
+                            @for (int i = 1; i <= 5; i++) { @(i <= Math.Round(user.AverageRating) ? "★" : "☆") }
+                        </div>
+                    </td>
+                    <td style="font-size:0.8rem;color:var(--text-muted);">@user.CreatedAt.ToString("dd MMM yyyy")</td>
+                    <td>
+                        @if (user.IsBanned)
+                        { <span class="status-badge badge-rejected">Banned</span> }
+                        else if (user.IsVerified)
+                        { <span class="status-badge badge-approved">Verified</span> }
+                        else
+                        { <span class="status-badge badge-pending">Unverified</span> }
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1 flex-wrap">
+                            @if (!user.IsBanned)
+                            {
+                                <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal"
+                                        data-bs-target="#banModal_@user.Id">Ban</button>
+                                <form asp-action="MakeAdmin" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <button type="submit" class="btn btn-sm bb-btn-ghost"
+                                            data-confirm="Make @user.FullName an admin?">Admin</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-action="UnbanUser" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <button type="submit" class="btn btn-sm btn-success">Unban</button>
+                                </form>
+                            }
+                        </div>
+
+                        <!-- Ban Modal -->
+                        <div class="modal fade" id="banModal_@user.Id" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                <div class="modal-content rounded-4">
+                                    <div class="modal-header border-0">
+                                        <h6 class="modal-title fw-bold">Ban @user.FullName?</h6>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form asp-action="BanUser" method="post">
+                                        <div class="modal-body pt-0">
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <textarea name="reason" class="form-control bb-input" rows="3"
+                                                      placeholder="Reason for ban..." required></textarea>
+                                        </div>
+                                        <div class="modal-footer border-0 pt-0">
+                                            <button type="submit" class="btn btn-danger btn-sm w-100">Confirm Ban</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

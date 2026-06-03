@@ -1,0 +1,135 @@
+@* Views/Shared/_Navbar.cshtml *@
+@inject Microsoft.AspNetCore.Identity.UserManager<BookBridge.Models.Entities.ApplicationUser> UserManager
+<nav class="navbar navbar-expand-lg bb-navbar" id="mainNav">
+    <div class="container">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <a class="navbar-brand bb-brand" asp-controller="Dashboard" asp-action="Index">
+                <div class="brand-icon"><i class="bi bi-book-half"></i></div>
+                <span>Book<strong>Bridge</strong></span>
+            </a>
+        }
+        else
+        {
+            <a class="navbar-brand bb-brand" asp-controller="Home" asp-action="Index">
+                <div class="brand-icon"><i class="bi bi-book-half"></i></div>
+                <span>Book<strong>Bridge</strong></span>
+            </a>
+        }
+
+        @if (ViewData["ShowSidebarToggle"] as bool? == true)
+        {
+            <button class="btn d-lg-none ms-2" id="mobileSidebarBtn" style="border:1px solid var(--border);padding:4px 8px;background:var(--bg-card);">
+                <i class="bi bi-layout-sidebar"></i>
+            </button>
+        }
+
+
+        <button class="navbar-toggler bb-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span></span><span></span><span></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav mx-auto gap-1">
+                <li class="nav-item">
+                    <a class="nav-link bb-nav-link" asp-controller="Books" asp-action="Index">Browse Books</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link bb-nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Explore</a>
+                    <ul class="dropdown-menu bb-dropdown">
+                        <li><a class="dropdown-item" asp-controller="Books" asp-action="Index" asp-route-TransactionType="Sell"><i class="bi bi-tag me-2 text-primary"></i>Buy Books</a></li>
+                        <li><a class="dropdown-item" asp-controller="Books" asp-action="Index" asp-route-TransactionType="Borrow"><i class="bi bi-clock me-2 text-warning"></i>Borrow Books</a></li>
+                        <li><a class="dropdown-item" asp-controller="Books" asp-action="Index" asp-route-TransactionType="Donate"><i class="bi bi-heart me-2 text-danger"></i>Donate</a></li>
+                        <li><a class="dropdown-item" asp-controller="Books" asp-action="Index" asp-route-TransactionType="Exchange"><i class="bi bi-arrow-left-right me-2 text-success"></i>Exchange</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link bb-nav-link" asp-controller="Home" asp-action="About">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link bb-nav-link" asp-controller="Home" asp-action="FAQ">FAQ</a>
+                </li>
+            </ul>
+
+            <div class="navbar-actions d-flex align-items-center gap-2">
+                <!-- Theme Toggle -->
+                <button class="icon-btn" id="themeToggleBtn" aria-label="Toggle Dark Mode">
+                    <i class="bi bi-moon-stars"></i>
+                </button>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <!-- Notifications -->
+                    <div class="nav-icon-btn position-relative" id="notifBtn">
+                        <a asp-controller="Dashboard" asp-action="Notifications" class="icon-btn">
+                            <i class="bi bi-bell"></i>
+                            <span class="notif-badge" id="notifCount" style="display:none"></span>
+                        </a>
+                    </div>
+
+                    <!-- Chat -->
+                    <a asp-controller="Chat" asp-action="Index" class="icon-btn">
+                        <i class="bi bi-chat-dots"></i>
+                    </a>
+
+                    <!-- User Menu -->
+                    <div class="dropdown">
+                        <button class="user-avatar-btn dropdown-toggle" data-bs-toggle="dropdown">
+                            @{
+                                var appUser = await UserManager.GetUserAsync(User);
+                                var userPic = appUser?.ProfilePicture;
+                                string displayName = "";
+                                if (appUser != null && !string.IsNullOrEmpty(appUser.FullName))
+                                {
+                                    var parts = appUser.FullName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                                    if (parts.Length > 0)
+                                    {
+                                        var firstName = parts[0];
+                                        if (firstName.Length > 10 && parts.Length > 1)
+                                        {
+                                            var lastName = parts[parts.Length - 1];
+                                            displayName = $"{firstName[0]}. {lastName[0]}.";
+                                        }
+                                        else
+                                        {
+                                            displayName = firstName;
+                                        }
+                                    }
+                                }
+                                if (string.IsNullOrEmpty(displayName))
+                                {
+                                    displayName = User.Identity?.Name?.Split('@')[0] ?? "User";
+                                }
+                            }
+                            <img src="@(string.IsNullOrEmpty(userPic) ? "/images/default-avatar.png" : userPic)"
+                                 alt="Profile" class="user-avatar" />
+                            <span class="user-name-nav d-none d-lg-inline">@displayName</span>
+                        </button>
+                        <ul class="dropdown-menu bb-dropdown dropdown-menu-end">
+                            <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-grid me-2"></i>Dashboard</a></li>
+                            <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Profile"><i class="bi bi-person me-2"></i>My Profile</a></li>
+                            <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="MyBooks"><i class="bi bi-collection me-2"></i>My Books</a></li>
+                            <li><a class="dropdown-item" asp-controller="Books" asp-action="Create"><i class="bi bi-plus-circle me-2"></i>List a Book</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li><a class="dropdown-item text-warning" asp-controller="Admin" asp-action="Index"><i class="bi bi-shield me-2"></i>Admin Panel</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            }
+                            <li>
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Sign Out</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn bb-btn-ghost btn-sm">Sign In</a>
+                    <a asp-controller="Account" asp-action="Register" class="btn bb-btn-primary btn-sm">Get Started</a>
+                }
+            </div>
+        </div>
+    </div>
+</nav>

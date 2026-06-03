@@ -1,0 +1,162 @@
+@model BookBridge.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+        <h1 style="font-family:var(--font-body);font-size:1.8rem;font-weight:600;margin-bottom:4px;">Admin Dashboard</h1>
+        <p class="text-muted mb-0">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</p>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-4 mb-5">
+    @{
+        var stats = new[] {
+            ("Total Users", Model.TotalUsers.ToString(), "bi-people", "icon-blue"),
+            ("Total Books", Model.TotalBooks.ToString(), "bi-collection", "icon-violet"),
+            ("Open Tickets", Model.PendingTickets.ToString(), "bi-headset", "icon-rose"),
+            ("Banned Users", Model.BannedUsers.ToString(), "bi-person-x", "icon-rose"),
+            ("Reports", Model.PendingReports.ToString(), "bi-flag", "icon-amber"),
+        };
+    }
+    @foreach (var (label, value, icon, color) in stats)
+    {
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="analytics-card">
+                <div class="analytics-card-icon @color"><i class="bi @icon"></i></div>
+                <div class="analytics-value">@value</div>
+                <div class="analytics-label">@label</div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="row g-4">
+    <!-- Recent Users -->
+    <div class="col-lg-6">
+        <div class="analytics-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 style="font-family:var(--font-body);font-weight:700;margin-bottom:0;">Recent Users</h6>
+                <a asp-action="Users" class="text-muted small">Manage →</a>
+            </div>
+            <div class="admin-table">
+                <table class="table mb-0">
+                    <thead><tr><th>User</th><th>City</th><th>Status</th><th>Joined</th></tr></thead>
+                    <tbody>
+                        @foreach (var user in Model.RecentUsers)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="@(user.ProfilePicture ?? "/images/default-avatar.png")"
+                                             style="width:32px;height:32px;border-radius:50%;object-fit:cover;"
+                                             onerror="this.src='/images/default-avatar.png'" />
+                                        <div>
+                                            <div style="font-weight:600;font-size:0.8rem;">@user.FullName</div>
+                                            <div style="font-size:0.72rem;color:var(--text-muted);">@user.Email</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="font-size:0.8rem;">@(user.City ?? "—")</td>
+                                <td>
+                                    @if (user.IsBanned)
+                                    { <span class="status-badge badge-rejected">Banned</span> }
+                                    else if (user.IsVerified)
+                                    { <span class="status-badge badge-approved">Verified</span> }
+                                    else
+                                    { <span class="status-badge badge-pending">Unverified</span> }
+                                </td>
+                                <td style="font-size:0.75rem;color:var(--text-muted);">@user.CreatedAt.ToString("dd MMM")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open Tickets -->
+    <div class="col-lg-6">
+        <div class="analytics-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 style="font-family:var(--font-body);font-weight:700;margin-bottom:0;">Open Support Tickets</h6>
+                <a asp-action="Tickets" class="text-muted small">All tickets →</a>
+            </div>
+            @if (Model.OpenTickets.Any())
+            {
+                <div class="d-flex flex-column gap-2">
+                    @foreach (var ticket in Model.OpenTickets)
+                    {
+                        <div class="d-flex gap-3 p-3 rounded-3" style="border:1px solid var(--border);">
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-weight:600;font-size:0.875rem;">@ticket.Subject</div>
+                                <div style="font-size:0.78rem;color:var(--text-muted);">@ticket.User?.FullName · @ticket.CreatedAt.ToString("dd MMM")</div>
+                            </div>
+                            <a asp-action="Tickets" class="btn bb-btn-ghost btn-sm" style="white-space:nowrap;">Reply</a>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-3 text-muted" style="font-size:0.875rem;">No open tickets 🎉</div>
+            }
+        </div>
+    </div>
+
+    <!-- Pending Reports -->
+    <div class="col-lg-6">
+        <div class="analytics-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 style="font-family:var(--font-body);font-weight:700;margin-bottom:0;">Pending Reports</h6>
+                <a asp-action="Reports" class="text-muted small">All reports →</a>
+            </div>
+            @if (Model.PendingReportsList.Any())
+            {
+                @foreach (var report in Model.PendingReportsList)
+                {
+                    <div class="d-flex gap-3 p-3 rounded-3 mb-2" style="border:1px solid var(--border);">
+                        <i class="bi bi-flag-fill text-danger mt-1"></i>
+                        <div>
+                            <div style="font-weight:600;font-size:0.875rem;">@report.Reason</div>
+                            <div style="font-size:0.78rem;color:var(--text-muted);">By @report.Reporter?.FullName · @report.CreatedAt.ToString("dd MMM")</div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-3 text-muted" style="font-size:0.875rem;">No pending reports</div>
+            }
+        </div>
+    </div>
+
+    <!-- Recent Books -->
+    <div class="col-lg-6">
+        <div class="analytics-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 style="font-family:var(--font-body);font-weight:700;margin-bottom:0;">Recently Added Books</h6>
+                <a asp-action="Books" class="text-muted small">All books →</a>
+            </div>
+            <div class="admin-table">
+                <table class="table mb-0">
+                    <thead><tr><th>Title</th><th>Owner</th><th>Type</th><th>Status</th></tr></thead>
+                    <tbody>
+                        @foreach (var book in Model.RecentBooks)
+                        {
+                            <tr>
+                                <td style="font-size:0.8rem;font-weight:600;">@book.Title</td>
+                                <td style="font-size:0.8rem;">@book.Owner?.FullName</td>
+                                <td><span class="chip" style="font-size:0.65rem;">@book.TransactionType</span></td>
+                                <td><span class="status-badge badge-@book.Status.ToString().ToLower()">@book.Status</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,249 @@
+@model BookBridge.Models.ViewModels.ChatViewModel
+@{
+    ViewData["Title"] = "Messages";
+    Layout = null;
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Messages — BookBridge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+<partial name="_Navbar" />
+<div data-current-user="@currentUserId"></div>
+
+<div class="chat-layout" style="height: calc(100vh - var(--nav-height)); margin-top: var(--nav-height);">
+    <!-- Sidebar: Conversation List -->
+    <aside class="chat-sidebar">
+        <div class="chat-sidebar-header">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <a asp-controller="Dashboard" asp-action="Index" class="icon-btn" title="Back to Dashboard">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <h6 style="font-family:var(--font-body);font-weight:700;margin-bottom:0;">Messages</h6>
+                <div style="width:38px;"></div>
+            </div>
+            <div class="search-pill">
+                <i class="bi bi-search"></i>
+                <input class="search-input w-100" placeholder="Search conversations..." id="convSearch" />
+            </div>
+        </div>
+
+        @if (Model.AllConversations.Any())
+        {
+            @foreach (var conv in Model.AllConversations)
+            {
+                bool isActive = Model.Conversation?.Id == conv.ConversationId;
+                <a href="/Chat?conversationId=@conv.ConversationId" class="text-decoration-none">
+                    <div class="chat-item @(isActive ? "active" : "")">
+                        <div class="position-relative">
+                            <img src="@(conv.OtherUserPicture ?? "/images/default-avatar.png")"
+                                 alt="@conv.OtherUserName" class="chat-avatar"
+                                 onerror="this.src='/images/default-avatar.png'"
+                                 data-user-id="@conv.OtherUserId" />
+                            <div class="online-dot" style="display:none;"></div>
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="chat-name">@conv.OtherUserName</div>
+                                @if (conv.LastMessageAt.HasValue)
+                                {
+                                    <div class="chat-time">@conv.LastMessageAt.Value.ToString("HH:mm")</div>
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(conv.BookTitle))
+                            {
+                                <div style="font-size:0.7rem;color:var(--primary);font-weight:600;margin-bottom:2px;">
+                                    <i class="bi bi-book me-1"></i>@conv.BookTitle
+                                </div>
+                            }
+                            <div class="chat-preview">@(conv.LastMessage ?? "Start a conversation")</div>
+                        </div>
+                        @if (conv.UnreadCount > 0)
+                        {
+                            <div class="chat-unread">@conv.UnreadCount</div>
+                        }
+                    </div>
+                </a>
+            }
+        }
+        else
+        {
+            <div class="text-center py-5 text-muted px-4">
+                <i class="bi bi-chat-dots" style="font-size:2.5rem;display:block;margin-bottom:12px;opacity:0.4;"></i>
+                <div style="font-size:0.875rem;">No conversations yet</div>
+                <div style="font-size:0.8rem;margin-top:4px;">Browse books and start chatting with owners</div>
+            </div>
+        }
+    </aside>
+
+    <!-- Main Chat -->
+    <div class="chat-main">
+        @if (Model.Conversation != null)
+        {
+            var other = Model.OtherUser;
+            <div data-conversation-id="@Model.Conversation.Id"></div>
+
+            <!-- Chat Header -->
+            <div class="chat-header">
+                <div class="position-relative">
+                    <img src="@(other?.ProfilePicture ?? "/images/default-avatar.png")"
+                         alt="@other?.FullName"
+                         style="width:44px;height:44px;border-radius:50%;object-fit:cover;"
+                         onerror="this.src='/images/default-avatar.png'"
+                         data-user-id="@other?.Id" />
+                    <div class="online-dot"></div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:700;font-size:0.95rem;">@other?.FullName</div>
+                    @if (Model.Conversation.Book != null)
+                    {
+                        <div style="font-size:0.75rem;color:var(--primary);font-weight:600;">
+                            <i class="bi bi-book me-1"></i>@Model.Conversation.Book.Title
+                        </div>
+                    }
+                </div>
+                <div class="d-flex gap-2">
+                    @if (other != null)
+                    {
+                        <a asp-controller="Dashboard" asp-action="PublicProfile" asp-route-id="@other.Id"
+                           class="icon-btn" title="View Profile">
+                            <i class="bi bi-person"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages" id="chatMessages">
+                @if (!Model.Messages.Any())
+                {
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-chat-heart" style="font-size:2.5rem;display:block;margin-bottom:12px;opacity:0.4;"></i>
+                        <div>Start the conversation!</div>
+                        @if (Model.Conversation.Book != null)
+                        {
+                            <div style="font-size:0.8rem;margin-top:6px;">About: @Model.Conversation.Book.Title</div>
+                        }
+                    </div>
+                }
+                @foreach (var msg in Model.Messages)
+                {
+                    bool isOwn = msg.SenderId == currentUserId;
+                    <div class="chat-message @(isOwn ? "own" : "")">
+                        @if (!isOwn)
+                        {
+                            <img src="@(other?.ProfilePicture ?? "/images/default-avatar.png")"
+                                 alt="@other?.FullName" class="msg-avatar"
+                                 onerror="this.src='/images/default-avatar.png'" />
+                        }
+                        <div>
+                            @if (!string.IsNullOrEmpty(msg.ImagePath))
+                            {
+                                var ext = System.IO.Path.GetExtension(msg.ImagePath).ToLower();
+                                var isImage = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" }.Contains(ext);
+                                <div class="msg-bubble" style="@(isImage ? "padding:6px;" : "")">
+                                    @if (isImage)
+                                    {
+                                        <img src="@msg.ImagePath" style="max-width:200px;border-radius:8px;cursor:zoom-in;"
+                                             onclick="openLightbox(this.src)" />
+                                    }
+                                    else
+                                    {
+                                        <a href="@msg.ImagePath" target="_blank" download class="d-flex align-items-center gap-2 text-decoration-none @(isOwn ? "text-white" : "text-primary")">
+                                            <i class="bi bi-file-earmark-arrow-down-fill" style="font-size:1.5rem;"></i>
+                                            <span style="font-size:0.85rem;word-break:break-all;">@System.IO.Path.GetFileName(msg.ImagePath)</span>
+                                        </a>
+                                    }
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(msg.Content))
+                            {
+                                <div class="msg-bubble">@msg.Content</div>
+                            }
+                            <div class="msg-time">
+                                @msg.SentAt.ToString("HH:mm")
+                                @if (isOwn) { @(msg.IsRead ? " ✓✓" : " ✓") }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Scroll to Bottom Button -->
+            <button id="scrollToBottomBtn" class="scroll-bottom-btn" style="display:none;" title="Scroll to bottom">
+                <i class="bi bi-arrow-down"></i>
+            </button>
+
+            <!-- File Preview Bar (hidden until file selected) -->
+            <div id="filePreviewBar" class="file-preview-bar" style="display:none;">
+                <i class="bi bi-paperclip"></i>
+                <span class="file-name" id="filePreviewName"></span>
+                <button type="button" class="remove-file" id="removeFileBtn" title="Remove file">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <!-- Input -->
+            <div class="chat-input-area">
+                @Html.AntiForgeryToken()
+                <button class="icon-btn" title="Send file" onclick="document.getElementById('fileUpload').click()">
+                    <i class="bi bi-paperclip"></i>
+                </button>
+                <input type="file" id="fileUpload" class="d-none" />
+
+                <textarea class="chat-textarea" id="chatTextarea" rows="1"
+                          placeholder="Type a message..." maxlength="1000"
+                          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+
+                <button class="chat-send-btn" id="sendMessageBtn" title="Send">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+        }
+        else
+        {
+            <!-- Empty State -->
+            <div class="d-flex align-items-center justify-content-center h-100 text-center">
+                <div>
+                    <div style="font-size:4rem;margin-bottom:16px;">💬</div>
+                    <h4 style="font-family:var(--font-body);font-weight:700;">Your Messages</h4>
+                    <p class="text-muted">Select a conversation or start one from a book listing.</p>
+                    <a asp-controller="Books" asp-action="Index" class="btn bb-btn-primary mt-2">Browse Books</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<script src="~/js/site.js"></script>
+<script src="~/js/notifications.js"></script>
+
+<script>
+    // Search conversations
+    document.getElementById('convSearch')?.addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('.chat-item').forEach(item => {
+            item.closest('a').style.display = item.querySelector('.chat-name').textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    });
+
+    function openLightbox(src) {
+        const lb = document.createElement('div');
+        lb.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+        lb.innerHTML = `<img src="${src}" style="max-width:90vw;max-height:90vh;object-fit:contain;border-radius:12px;" />`;
+        lb.addEventListener('click', () => lb.remove());
+        document.body.appendChild(lb);
+    }
+</script>
+</body>
+</html>

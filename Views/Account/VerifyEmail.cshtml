@@ -1,0 +1,208 @@
+@* VerifyEmail.cshtml *@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "Verify Email";
+    Layout = "~/Views/Shared/_AuthLayout.cshtml";
+    var email = (ViewData["Email"] as string) 
+                ?? HttpContextAccessor.HttpContext?.Request.Query["email"].ToString() 
+                ?? HttpContextAccessor.HttpContext?.Session.GetString("PendingVerificationEmail") 
+                ?? "";
+}
+
+<div class="auth-card">
+    <div class="auth-header">
+        <div class="brand-icon mb-3" style="width:48px;height:48px;font-size:1.4rem;margin:0 auto; background: rgba(16, 185, 129, 0.1); color: var(--emerald);">
+            <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <h1 class="auth-title">Verify your email</h1>
+        <p class="auth-subtitle">We sent a 6-digit code to <strong style="color: var(--primary); font-weight: 700;">@email</strong></p>
+    </div>
+
+    <!-- Feedback alerts -->
+    <div id="verifyMessage" class="alert d-none rounded-3 mb-4"></div>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert alert-warning rounded-3 mb-4">@TempData["Warning"]</div>
+    }
+
+    <form asp-action="VerifyEmail" method="post" id="verifyForm">
+        <input type="hidden" name="email" value="@email" />
+
+        <div class="mb-4">
+            <label class="form-label text-center d-block fw-semibold mb-3" style="font-size: 0.9rem;">Enter 6-Digit Verification Code</label>
+            <div class="d-flex justify-content-center gap-2 mb-2" id="otpContainer">
+                <!-- 6 separate OTP boxes for a highly premium, modern, app-like feel -->
+                @for (int i = 0; i < 6; i++)
+                {
+                    <input type="text" class="form-control otp-box text-center" maxlength="1" pattern="\d*" inputmode="numeric" required />
+                }
+            </div>
+            <input type="hidden" name="code" id="otpFullCode" />
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn bb-btn-primary w-100 btn-lg mb-4 d-flex align-items-center justify-content-center gap-2">
+            <span>Verify Account</span> <i class="bi bi-check-circle" id="submitIcon"></i>
+        </button>
+
+        <div class="text-center">
+            <span class="text-muted small">Didn't receive the code?</span>
+            <button type="button" id="resendBtn" class="btn btn-link p-0 ms-1 fw-600 text-decoration-none small text-primary" style="font-size: 0.875rem;">
+                Resend Code
+            </button>
+            <span id="resendCountdown" class="text-muted small d-none">(Resend in <span id="timerSec">30</span>s)</span>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const otpBoxes = document.querySelectorAll(".otp-box");
+            const fullCodeInput = document.getElementById("otpFullCode");
+            const verifyForm = document.getElementById("verifyForm");
+            const resendBtn = document.getElementById("resendBtn");
+            const resendCountdown = document.getElementById("resendCountdown");
+            const timerSec = document.getElementById("timerSec");
+            const verifyMessage = document.getElementById("verifyMessage");
+            const submitBtn = document.getElementById("submitBtn");
+            const submitIcon = document.getElementById("submitIcon");
+
+            let countdownTimer;
+
+            // Focus management for modern multi-box OTP entry
+            otpBoxes.forEach((box, index) => {
+                box.addEventListener("input", (e) => {
+                    const val = e.target.value;
+                    if (val.length === 1 && index < otpBoxes.length - 1) {
+                        otpBoxes[index + 1].focus();
+                    }
+                    updateFullCode();
+                });
+
+                box.addEventListener("keydown", (e) => {
+                    if (e.key === "Backspace" && !box.value && index > 0) {
+                        otpBoxes[index - 1].focus();
+                    }
+                });
+
+                // Paste support
+                box.addEventListener("paste", (e) => {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData("text");
+                    const digits = text.replace(/\D/g, "").substring(0, 6);
+                    
+                    digits.split("").forEach((digit, i) => {
+                        if (otpBoxes[i]) {
+                            otpBoxes[i].value = digit;
+                            if (otpBoxes[i + 1]) otpBoxes[i + 1].focus();
+                        }
+                    });
+                    updateFullCode();
+                });
+            });
+
+            function updateFullCode() {
+                let code = "";
+                otpBoxes.forEach(box => code += box.value);
+                fullCodeInput.value = code;
+            }
+
+            // Submit interceptor
+            verifyForm.addEventListener("submit", (e) => {
+                updateFullCode();
+                if (fullCodeInput.value.length !== 6) {
+                    e.preventDefault();
+                    showMessage("danger", "Please enter all 6 digits.");
+                    return;
+                }
+                submitBtn.disabled = true;
+                submitBtn.querySelector("span").textContent = "Verifying...";
+                submitIcon.className = "bi bi-arrow-repeat spin";
+            });
+
+            function showMessage(type, text) {
+                verifyMessage.textContent = text;
+                verifyMessage.className = `alert alert-${type} rounded-3 mb-4`;
+                verifyMessage.classList.remove("d-none");
+            }
+
+            // Resend Code Logic
+            resendBtn.addEventListener("click", async () => {
+                resendBtn.disabled = true;
+                showMessage("info", "Requesting a new verification code...");
+
+                try {
+                    const email = "@email";
+                    const response = await fetch("/Account/ResendVerificationCode", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ email: email })
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        showMessage("success", data.message);
+                        startCountdown();
+                    } else {
+                        showMessage("danger", data.message);
+                        resendBtn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error("Resend error:", error);
+                    showMessage("danger", "Failed to resend code. Please try again.");
+                    resendBtn.disabled = false;
+                }
+            });
+
+            function startCountdown() {
+                resendBtn.classList.add("d-none");
+                resendCountdown.classList.remove("d-none");
+                let sec = 30;
+                timerSec.textContent = sec;
+
+                clearInterval(countdownTimer);
+                countdownTimer = setInterval(() => {
+                    sec--;
+                    timerSec.textContent = sec;
+                    if (sec <= 0) {
+                        clearInterval(countdownTimer);
+                        resendBtn.classList.remove("d-none");
+                        resendCountdown.classList.add("d-none");
+                        resendBtn.disabled = false;
+                    }
+                }, 1000);
+            }
+        });
+    </script>
+
+    <style>
+        .otp-box {
+            width: 48px;
+            height: 56px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+        .otp-box:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+            background: #fff;
+        }
+        .spin {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @@keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+}

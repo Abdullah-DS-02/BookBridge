@@ -1,0 +1,92 @@
+@model List<BookBridge.Models.Entities.SupportTicket>
+@{
+    ViewData["Title"] = "Support";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="analytics-card p-4">
+            <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:20px;">
+                <i class="bi bi-headset me-2 text-primary"></i>Submit a Ticket
+            </h5>
+            <form asp-action="CreateTicket" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Subject</label>
+                    <input name="subject" class="form-control bb-input" placeholder="Brief description of your issue" required />
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control bb-input" rows="5"
+                              placeholder="Describe your issue in detail..." required></textarea>
+                </div>
+                <button type="submit" class="btn bb-btn-primary w-100">
+                    <i class="bi bi-send me-2"></i>Submit Ticket
+                </button>
+            </form>
+
+            <div class="divider"></div>
+
+            <div class="d-flex flex-column gap-3">
+                <div class="d-flex gap-3 p-3 rounded-3" style="background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.1);">
+                    <i class="bi bi-envelope-open text-primary" style="font-size:1.3rem;"></i>
+                    <div>
+                        <div style="font-weight:600;font-size:0.875rem;">Email Support</div>
+                        <div style="font-size:0.8rem;color:var(--text-muted);">support@bookbridge.pk</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-3 p-3 rounded-3" style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.1);">
+                    <i class="bi bi-whatsapp text-success" style="font-size:1.3rem;"></i>
+                    <div>
+                        <div style="font-weight:600;font-size:0.875rem;">WhatsApp</div>
+                        <div style="font-size:0.8rem;color:var(--text-muted);">+92-300-BOOKBRIDGE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:16px;">My Tickets</h5>
+
+        @if (Model.Any())
+        {
+            <div class="d-flex flex-column gap-3">
+                @foreach (var ticket in Model)
+                {
+                    var statusColor = ticket.Status switch {
+                        "Open" => "var(--amber)",
+                        "Replied" => "var(--primary)",
+                        "Closed" => "var(--emerald)",
+                        _ => "var(--text-muted)"
+                    };
+                    <div class="analytics-card p-4">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div style="font-weight:700;font-size:0.95rem;">@ticket.Subject</div>
+                            <span class="status-badge" style="background:rgba(0,0,0,0.06);color:@statusColor;">@ticket.Status</span>
+                        </div>
+                        <p style="font-size:0.875rem;color:var(--text-secondary);margin-bottom:8px;">@ticket.Description</p>
+                        @if (!string.IsNullOrEmpty(ticket.AdminReply))
+                        {
+                            <div class="p-3 rounded-2 mt-3" style="background:rgba(37,99,235,0.05);border-left:3px solid var(--primary);">
+                                <div style="font-size:0.75rem;font-weight:700;color:var(--primary);margin-bottom:4px;">
+                                    <i class="bi bi-shield me-1"></i>Support Team
+                                </div>
+                                <p style="font-size:0.875rem;margin-bottom:0;">@ticket.AdminReply</p>
+                            </div>
+                        }
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;">@ticket.CreatedAt.ToString("dd MMM yyyy, h:mm tt")</div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5 analytics-card">
+                <i class="bi bi-ticket-perforated" style="font-size:2.5rem;color:var(--text-muted);display:block;margin-bottom:12px;"></i>
+                <h6>No tickets submitted</h6>
+                <p class="text-muted small">Submit a ticket if you need help.</p>
+            </div>
+        }
+    </div>
+</div>

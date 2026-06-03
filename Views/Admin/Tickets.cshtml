@@ -1,0 +1,68 @@
+@* Admin/Tickets.cshtml *@
+@model List<BookBridge.Models.Entities.SupportTicket>
+@{
+    ViewData["Title"] = "Support Tickets";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+}
+
+<h2 style="font-family:var(--font-body);font-weight:600;margin-bottom:20px;">Support Tickets</h2>
+
+<div class="row g-4">
+    @foreach (var ticket in Model)
+    {
+        <div class="col-lg-6">
+            <div class="analytics-card p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <div style="font-weight:700;font-size:0.95rem;">@ticket.Subject</div>
+                        <div style="font-size:0.8rem;color:var(--text-muted);">
+                            @ticket.User?.FullName · @ticket.User?.Email
+                        </div>
+                        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">
+                            @ticket.CreatedAt.ToString("dd MMM yyyy, h:mm tt")
+                        </div>
+                    </div>
+                    <span class="status-badge badge-@(ticket.Status == "Open" ? "pending" : ticket.Status == "Replied" ? "approved" : "")">
+                        @ticket.Status
+                    </span>
+                </div>
+
+                <p style="font-size:0.875rem;color:var(--text-secondary);background:rgba(248,250,255,0.8);padding:12px;border-radius:8px;margin-bottom:12px;">
+                    @ticket.Description
+                </p>
+
+                @if (!string.IsNullOrEmpty(ticket.AdminReply))
+                {
+                    <div class="p-3 rounded-2 mb-3"
+                         style="background:rgba(37,99,235,0.05);border-left:3px solid var(--primary);">
+                        <div style="font-size:0.72rem;font-weight:700;color:var(--primary);margin-bottom:4px;">Your Reply:</div>
+                        <div style="font-size:0.875rem;">@ticket.AdminReply</div>
+                    </div>
+                }
+
+                @if (ticket.Status != "Closed")
+                {
+                    <form asp-action="ReplyTicket" method="post">
+                        <input type="hidden" name="id" value="@ticket.Id" />
+                        <div class="d-flex gap-2">
+                            <textarea name="reply" class="form-control bb-input" rows="2"
+                                      placeholder="Type your reply..." style="font-size:0.875rem;" required></textarea>
+                            <button type="submit" class="btn bb-btn-primary btn-sm" style="white-space:nowrap;">
+                                <i class="bi bi-send"></i>
+                            </button>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5 analytics-card">
+        <i class="bi bi-headset" style="font-size:3rem;color:var(--text-muted);display:block;margin-bottom:12px;"></i>
+        <h5>No support tickets</h5>
+        <p class="text-muted">All clear! No open tickets.</p>
+    </div>
+}
