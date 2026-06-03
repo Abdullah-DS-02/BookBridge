@@ -276,3 +276,4 @@ Pull requests welcome. For major changes, open an issue first.
 ```
 Built with ❤️ for Pakistan's reading community
 ```
+

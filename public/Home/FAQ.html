@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAQ &#x2014; BookBridge</title>
+    <meta name="description" content="BookBridge — Pakistan's premier book marketplace. Buy, sell, borrow, donate and exchange books." />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/site.css?v=FrMndqp2gCKA2SnNPxEWhbJnHahkyt_CGgow3slWI-g" />
+
+    
+</head>
+<body class="">
+    <!-- Ambient Mouse Follower -->
+    <div class="mouse-follower" id="mouseFollower"></div>
+
+    <!-- Ambient background orbs -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bb-navbar" id="mainNav">
+    <div class="container">
+            <a class="navbar-brand bb-brand" href="/">
+                <div class="brand-icon"><i class="bi bi-book-half"></i></div>
+                <span>Book<strong>Bridge</strong></span>
+            </a>
+
+
+
+        <button class="navbar-toggler bb-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span></span><span></span><span></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav mx-auto gap-1">
+                <li class="nav-item">
+                    <a class="nav-link bb-nav-link" href="/Books">Browse Books</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link bb-nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Explore</a>
+                    <ul class="dropdown-menu bb-dropdown">
+                        <li><a class="dropdown-item" href="/Books?TransactionType=Sell"><i class="bi bi-tag me-2 text-primary"></i>Buy Books</a></li>
+                        <li><a class="dropdown-item" href="/Books?TransactionType=Borrow"><i class="bi bi-clock me-2 text-warning"></i>Borrow Books</a></li>
+                        <li><a class="dropdown-item" href="/Books?TransactionType=Donate"><i class="bi bi-heart me-2 text-danger"></i>Donate</a></li>
+                        <li><a class="dropdown-item" href="/Books?TransactionType=Exchange"><i class="bi bi-arrow-left-right me-2 text-success"></i>Exchange</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link bb-nav-link" href="/Home/About">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link bb-nav-link" href="/Home/FAQ">FAQ</a>
+                </li>
+            </ul>
+
+            <div class="navbar-actions d-flex align-items-center gap-2">
+                <!-- Theme Toggle -->
+                <button class="icon-btn" id="themeToggleBtn" aria-label="Toggle Dark Mode">
+                    <i class="bi bi-moon-stars"></i>
+                </button>
+
+                    <a class="btn bb-btn-ghost btn-sm" href="/Account/Login">Sign In</a>
+                    <a class="btn bb-btn-primary btn-sm" href="/Account/Register">Get Started</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+
+    <!-- Toast Notifications -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999">
+    </div>
+
+    <!-- Main Content -->
+    <main>
+        
+<div class="page-wrap">
+    <div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:60px 0;text-align:center;">
+        <div class="container" style="position:relative;">
+            <div style="position:absolute;left:0;top:-20px;">
+                <a href="javascript:history.back()" class="text-secondary" style="font-size:1.5rem;display:inline-flex;align-items:center;transition:var(--transition);"><i class="bi bi-arrow-left"></i></a>
+            </div>
+            <div class="section-label">Help Center</div>
+            <h1 class="section-title">Frequently Asked Questions</h1>
+            <p class="section-subtitle mt-3">Find answers to the most common questions about BookBridge.</p>
+        </div>
+    </div>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                    <h5 style="font-family:var(--font-body);font-weight:700;color:var(--primary);margin:40px 0 16px;">General</h5>
+                    <div class="accordion mb-4" id="faq_General">
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_General_0"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        What is BookBridge?
+                                    </button>
+                                </h6>
+                                <div id="faq_General_0" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        BookBridge is Pakistan&#x27;s first complete book ecosystem where users can buy, sell, borrow, donate, and exchange books with verified readers across the country.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_General_1"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        Is BookBridge free to use?
+                                    </button>
+                                </h6>
+                                <div id="faq_General_1" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        Creating an account and browsing books is completely free. BookBridge charges a small service fee only on successful paid transactions.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_General_2"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        How do I get started?
+                                    </button>
+                                </h6>
+                                <div id="faq_General_2" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        Simply create a free account, complete your profile, and start browsing or listing books. It takes less than 2 minutes to sign up.
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    <h5 style="font-family:var(--font-body);font-weight:700;color:var(--primary);margin:40px 0 16px;">Buying &amp; Selling</h5>
+                    <div class="accordion mb-4" id="faq_Buying&amp;Selling">
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_Buying&amp;Selling_0"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        How do I buy a book?
+                                    </button>
+                                </h6>
+                                <div id="faq_Buying&amp;Selling_0" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        Browse books, find one you like, and click &#x27;Chat to Buy&#x27; to message the seller directly. Negotiate price and arrange payment through our secure system.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_Buying&amp;Selling_1"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        How do I list a book for sale?
+                                    </button>
+                                </h6>
+                                <div id="faq_Buying&amp;Selling_1" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        After logging in, click &#x27;List a Book&#x27;, fill in the details, upload photos, set your price, and publish. Your book goes live instantly.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_Buying&amp;Selling_2"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        How do payments work?
+                                    </button>
+                                </h6>
+                                <div id="faq_Buying&amp;Selling_2" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        Payments are handled securely through our platform. We support wallet transfers and will be integrating Stripe for card payments soon.
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    <h5 style="font-family:var(--font-body);font-weight:700;color:var(--primary);margin:40px 0 16px;">Borrowing</h5>
+                    <div class="accordion mb-4" id="faq_Borrowing">
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_Borrowing_0"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        How does borrowing work?
+                                    </button>
+                                </h6>
+                                <div id="faq_Borrowing_0" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        Find a book listed as &#x27;Borrow&#x27;, click &#x27;Request to Borrow&#x27;, set the duration (up to the owner&#x27;s maximum), and send a message. The owner approves or rejects your request.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_Borrowing_1"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        What happens if I return a book late?
+                                    </button>
+                                </h6>
+                                <div id="faq_Borrowing_1" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        You&#x27;ll receive overdue alerts and the owner will be notified. Repeated late returns may affect your rating and ability to borrow in the future.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_Borrowing_2"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        Is there a security deposit for borrowing?
+                                    </button>
+                                </h6>
+                                <div id="faq_Borrowing_2" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        Some owners may require a refundable security deposit which is returned when you return the book on time.
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    <h5 style="font-family:var(--font-body);font-weight:700;color:var(--primary);margin:40px 0 16px;">Safety &amp; Trust</h5>
+                    <div class="accordion mb-4" id="faq_Safety&amp;Trust">
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_Safety&amp;Trust_0"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        How does identity verification work?
+                                    </button>
+                                </h6>
+                                <div id="faq_Safety&amp;Trust_0" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        Users can submit their CNIC number for identity verification. Verified users display a blue checkmark badge on their profile, building trust in the community.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_Safety&amp;Trust_1"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        What if someone scams me?
+                                    </button>
+                                </h6>
+                                <div id="faq_Safety&amp;Trust_1" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        BookBridge has a fraud monitoring system and you can report any suspicious activity. Verified identities mean scammers can be held accountable.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item" style="border:1px solid var(--border);border-radius:var(--radius-md) !important;margin-bottom:8px;overflow:hidden;">
+                                <h6 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#faq_Safety&amp;Trust_2"
+                                            style="font-family:var(--font-body);font-weight:600;font-size:0.9rem;background:var(--bg-card);box-shadow:none;">
+                                        How do ratings and reviews work?
+                                    </button>
+                                </h6>
+                                <div id="faq_Safety&amp;Trust_2" class="accordion-collapse collapse">
+                                    <div class="accordion-body" style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:rgba(248,250,255,0.5);">
+                                        After a transaction, both parties can leave a star rating and written review. These reviews build each user&#x27;s reputation on the platform.
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+
+                <div class="text-center mt-5 p-5 rounded-3" style="background:linear-gradient(135deg,rgba(37,99,235,0.05),rgba(79,70,229,0.05));border:1px solid rgba(37,99,235,0.1);">
+                    <h5 style="font-family:var(--font-body);font-weight:700;margin-bottom:8px;">Still have questions?</h5>
+                    <p class="text-muted mb-4">Our support team is here to help you get the most out of BookBridge.</p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a class="btn bb-btn-primary" href="/Home/Contact">Contact Support</a>
+                            <a class="btn bb-btn-ghost" href="/Account/Register">Create Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bb-footer">
+        <div class="container">
+            <div class="row g-5 mb-5">
+                <div class="col-lg-4">
+                    <div class="footer-brand mb-4">
+                        <div class="brand-icon me-2"><i class="bi bi-book-half"></i></div>
+                        <span class="fw-bold fs-4">Book<strong>Bridge</strong></span>
+                    </div>
+                    <p class="text-muted footer-desc">Pakistan's first complete book ecosystem. Buy, sell, borrow, donate, and exchange books with a trusted community of readers.</p>
+                    <div class="social-links mt-4">
+                        <a href="#" class="social-btn"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="social-btn"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h6 class="footer-heading">Platform</h6>
+                    <ul class="footer-links">
+                        <li><a href="/Books">Browse Books</a></li>
+                        <li><a href="/Books/Create">List a Book</a></li>
+                        <li><a href="/Home/About">About Us</a></li>
+                        <li><a href="/Home/FAQ">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h6 class="footer-heading">Explore</h6>
+                    <ul class="footer-links">
+                        <li><a href="/Books?TransactionType=Sell">Buy Books</a></li>
+                        <li><a href="/Books?TransactionType=Borrow">Borrow Books</a></li>
+                        <li><a href="/Books?TransactionType=Donate">Donate</a></li>
+                        <li><a href="/Books?TransactionType=Exchange">Exchange</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="footer-heading">Stay in the loop</h6>
+                    <p class="text-muted small">Get notified about new books and features.</p>
+                    <div class="footer-subscribe">
+                        <input type="email" id="newsletterEmail" class="form-control bb-input" placeholder="your@email.com" />
+                        <button id="newsletterSubscribeBtn" class="btn bb-btn-primary">Subscribe</button>
+                    </div>
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center gap-2 text-muted small">
+                            <i class="bi bi-shield-check text-success"></i>
+                            <span>Secure transactions with identity verification</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span class="text-muted small">© 2025 BookBridge. All rights reserved.</span>
+                <div class="d-flex gap-3">
+                    <a class="text-muted small" href="/Home/Privacy">Privacy Policy</a>
+                    <a class="text-muted small" href="/Home/Terms">Terms of Service</a>
+                    <a class="text-muted small" href="/Home/Contact">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
+    <script src="/js/site.js?v=ufCcdvteXcWco1gOoTLNZrrWtmNqFBEzrznse6pdpfY"></script>
+
+
+    
+</body>
+</html>

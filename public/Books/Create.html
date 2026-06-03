@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In — BookBridge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/site.css" />
+    <style>
+        body { background: var(--bg-base); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 24px 24px; padding-top: calc(var(--nav-height) + 24px); }
+
+        .auth-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 960px;
+            width: 100%;
+            min-height: 600px;
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-panel {
+            background: linear-gradient(145deg, #1e3a8a, #4f46e5, #0f172a);
+            padding: 60px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-panel::before {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08), transparent);
+            border-radius: 50%;
+            top: -100px; right: -100px;
+        }
+
+        .auth-panel-title {
+            font-family:var(--font-body);
+            font-size: 2rem;
+            font-weight:600;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .auth-panel-desc { font-size: 0.95rem; opacity: 0.75; line-height: 1.7; }
+
+        .auth-features { list-style: none; padding: 0; margin: 32px 0 0; }
+        .auth-features li {
+            display: flex; align-items: center; gap: 12px;
+            font-size: 0.9rem; margin-bottom: 14px; opacity: 0.9;
+        }
+        .auth-features li i { color: #10b981; font-size: 1rem; }
+
+        .auth-card {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 48px 40px;
+            overflow-y: auto;
+            border-left: 1px solid var(--border);
+        }
+
+        .auth-header { text-align: center; margin-bottom: 32px; }
+        .auth-title { font-family:var(--font-body); font-size: 1.6rem; font-weight:600; margin-bottom: 6px; color: var(--text-primary); }
+        .auth-subtitle { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .input-icon-wrap { position: relative; }
+        .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem; z-index: 1; }
+        .input-with-icon { padding-left: 38px !important; padding-right: 44px !important; }
+        .password-toggle {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px;
+            font-size: 0.9rem; z-index: 1;
+        }
+        .password-toggle:hover { color: var(--primary); }
+
+        .fw-600 { font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .auth-wrapper { grid-template-columns: 1fr; }
+            .auth-panel { display: none; }
+            .auth-card { border-radius: var(--radius-xl); border-left: none; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bb-navbar" id="mainNav">
+    <div class="container">
+            <a class="navbar-brand bb-brand" href="/">
+                <div class="brand-icon"><i class="bi bi-book-half"></i></div>
+                <span>Book<strong>Bridge</strong></span>
+            </a>
+
+
+
+        <button class="navbar-toggler bb-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+            <span></span><span></span><span></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav mx-auto gap-1">
+                <li class="nav-item">
+                    <a class="nav-link bb-nav-link" href="/Books">Browse Books</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link bb-nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Explore</a>
+                    <ul class="dropdown-menu bb-dropdown">
+                        <li><a class="dropdown-item" href="/Books?TransactionType=Sell"><i class="bi bi-tag me-2 text-primary"></i>Buy Books</a></li>
+                        <li><a class="dropdown-item" href="/Books?TransactionType=Borrow"><i class="bi bi-clock me-2 text-warning"></i>Borrow Books</a></li>
+                        <li><a class="dropdown-item" href="/Books?TransactionType=Donate"><i class="bi bi-heart me-2 text-danger"></i>Donate</a></li>
+                        <li><a class="dropdown-item" href="/Books?TransactionType=Exchange"><i class="bi bi-arrow-left-right me-2 text-success"></i>Exchange</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link bb-nav-link" href="/Home/About">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link bb-nav-link" href="/Home/FAQ">FAQ</a>
+                </li>
+            </ul>
+
+            <div class="navbar-actions d-flex align-items-center gap-2">
+                <!-- Theme Toggle -->
+                <button class="icon-btn" id="themeToggleBtn" aria-label="Toggle Dark Mode">
+                    <i class="bi bi-moon-stars"></i>
+                </button>
+
+                    <a class="btn bb-btn-ghost btn-sm" href="/Account/Login">Sign In</a>
+                    <a class="btn bb-btn-primary btn-sm" href="/Account/Register">Get Started</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <div class="auth-wrapper">
+        <!-- Left Panel -->
+        <div class="auth-panel">
+            <div>
+                <a class="d-flex align-items-center gap-2 text-white text-decoration-none mb-5" href="/">
+                    <div class="brand-icon" style="background:rgba(255,255,255,0.15);"><i class="bi bi-book-half"></i></div>
+                    <span style="font-family:var(--font-body);font-size:1.1rem;font-weight:700;">Book<strong>Bridge</strong></span>
+                </a>
+
+                <div class="auth-panel-title">Pakistan's Premier Book Ecosystem</div>
+                <div class="auth-panel-desc">
+                    Join thousands of readers who buy, sell, borrow, donate, and exchange books with trust and ease.
+                </div>
+
+                <ul class="auth-features">
+                    <li><i class="bi bi-check-circle-fill"></i> Buy & sell books at great prices</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Borrow books with countdown tracking</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Donate books to those in need</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Real-time chat with other readers</li>
+                    <li><i class="bi bi-check-circle-fill"></i> Verified identities for safe transactions</li>
+                </ul>
+            </div>
+
+            <div style="border-top:1px solid rgba(255,255,255,0.15);padding-top:24px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="display:flex;">
+                            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:2px solid white;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:white;">A</div>
+                            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:2px solid white;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:white;">B</div>
+                            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:2px solid white;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:white;">C</div>
+                            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border:2px solid white;margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;color:white;">D</div>
+                    </div>
+                    <div>
+                        <div class="stars" style="color:#fbbf24;font-size:0.85rem;">★★★★★</div>
+                        <div style="font-size:0.8rem;opacity:0.75;">Loved by 1,000+ readers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Form -->
+        <div>
+            
+<div class="auth-card">
+    <div class="auth-header">
+        <div class="brand-icon mb-3" style="width:48px;height:48px;font-size:1.4rem;margin:0 auto;">
+            <i class="bi bi-book-half"></i>
+        </div>
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-subtitle">Sign in to your BookBridge account</p>
+    </div>
+
+    <!-- Error Summary -->
+    <div id="authErrorMessage" class="alert alert-danger rounded-3 mb-4 d-none"></div>
+
+    <form method="post" id="loginForm" action="/Account/Login">
+        <input type="hidden" name="returnUrl" value="/Books/Create" />
+        <input type="hidden" name="FirebaseIdToken" id="firebaseIdToken" />
+        
+
+        <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <div class="input-icon-wrap">
+                <i class="bi bi-envelope input-icon"></i>
+                <input id="emailInput" type="email" class="form-control bb-input input-with-icon" placeholder="your@email.com" autocomplete="email" required data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." name="Email" value="" />
+            </div>
+            <span class="text-danger small field-validation-valid" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+        </div>
+
+        <div class="mb-3">
+            <div class="d-flex justify-content-between">
+                <label class="form-label">Password</label>
+                <a class="text-muted small" style="font-size:0.82rem;" href="/Account/ForgotPassword">Forgot password?</a>
+            </div>
+            <div class="input-icon-wrap">
+                <i class="bi bi-lock input-icon"></i>
+                <input type="password" class="form-control bb-input input-with-icon" placeholder="••••••••" id="passwordInput" autocomplete="current-password" required data-val="true" data-val-required="The Password field is required." name="Password" />
+                <button type="button" class="password-toggle" onclick="togglePassword('passwordInput', this)">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+            <span class="text-danger small field-validation-valid" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+        </div>
+
+        <div class="mb-4 d-flex align-items-center justify-content-between">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" data-val="true" data-val-required="The RememberMe field is required." id="RememberMe" name="RememberMe" value="true" />
+                <label class="form-check-label" style="font-size:0.875rem;" for="RememberMe">Remember me</label>
+            </div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn bb-btn-primary w-100 btn-lg mb-3 d-flex align-items-center justify-content-center gap-2">
+            <span>Sign In</span> <i class="bi bi-arrow-right" id="submitIcon"></i>
+        </button>
+
+        <div class="d-flex align-items-center my-3">
+            <hr class="flex-grow-1 text-muted">
+            <span class="px-3 text-muted small text-uppercase fw-bold" style="font-size: 0.72rem; letter-spacing: 0.5px;">Or continue with</span>
+            <hr class="flex-grow-1 text-muted">
+        </div>
+
+        <button type="button" id="googleSignInBtn" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2 py-2 border rounded-3 text-dark fw-semibold" style="background:#fff; border-color:#e2e8f0; font-size: 0.95rem; transition: all 0.2s ease;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.5 24c0-1.61-.15-3.16-.42-4.68H24v9.09h12.66c-.55 2.91-2.19 5.37-4.66 7.02l7.24 5.61C43.5 36.88 46.5 30.9 46.5 24z"/>
+                <path fill="#FBBC05" d="M10.54 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.98-6.19z"/>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.24-5.61c-2.11 1.41-4.8 2.25-8.65 2.25-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            <span>Google</span>
+        </button>
+
+        <div class="text-center mt-4">
+            <span class="text-muted" style="font-size:0.875rem;">Don't have an account?</span>
+            <a class="ms-1 fw-600" style="font-size:0.875rem;" href="/Account/Register">Create one free</a>
+        </div>
+    <input name="__RequestVerificationToken" type="hidden" value="CfDJ8PH79OQnWmxIrcJNnNY4AXKr2U7LuSnjjb_iuAgWZnGQdooYWaDNN6ISIWIMIek7PiXOH8Mj10HaDCSw721KQccXss6laYl3k1m7rtL2ZcQRjyguVDMyjRDp5DQ4WtLAaANn63bh2nBLtz2TrXtv7Ls" /><input name="RememberMe" type="hidden" value="false" /></form>
+</div>
+
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/site.js"></script>
+    <script>
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+    </script>
+    
+    <script type="module">
+        import { auth } from "/js/firebase-config.js";
+        import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const loginForm = document.getElementById("loginForm");
+        const emailInput = document.getElementById("emailInput");
+        const passwordInput = document.getElementById("passwordInput");
+        const firebaseIdTokenInput = document.getElementById("firebaseIdToken");
+        const errorAlert = document.getElementById("authErrorMessage");
+        const submitBtn = document.getElementById("submitBtn");
+        const submitIcon = document.getElementById("submitIcon");
+        const googleBtn = document.getElementById("googleSignInBtn");
+
+        function showError(message) {
+            errorAlert.textContent = message;
+            errorAlert.classList.remove("d-none");
+            submitBtn.disabled = false;
+            submitBtn.querySelector("span").textContent = "Sign In";
+            submitIcon.className = "bi bi-arrow-right";
+        }
+
+        function clearError() {
+            errorAlert.classList.add("d-none");
+            errorAlert.textContent = "";
+        }
+
+        // Email / Password Login
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearError();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                showError("Please enter both email and password.");
+                return;
+            }
+
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.querySelector("span").textContent = "Signing in...";
+            submitIcon.className = "bi bi-arrow-repeat spin";
+
+            try {
+                // 1. Authenticate with Firebase
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 2. Retrieve Firebase ID Token
+                const idToken = await user.getIdToken();
+                firebaseIdTokenInput.value = idToken;
+
+                // 3. Submit form to ASP.NET MVC backend
+                loginForm.submit();
+            } catch (error) {
+                console.error("Firebase auth error:", error);
+                let msg = "Failed to sign in. Please check your credentials.";
+                if (error.code === "auth/invalid-email") msg = "Invalid email address format.";
+                else if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
+                    msg = "Invalid email or password.";
+                } else if (error.code === "auth/too-many-requests") {
+                    msg = "Too many failed attempts. Try again later or reset password.";
+                }
+                showError(msg);
+            }
+        });
+
+        // Google Sign-In
+        googleBtn.addEventListener("click", async () => {
+            clearError();
+            googleBtn.disabled = true;
+            googleBtn.style.opacity = "0.7";
+            const originalGoogleText = googleBtn.querySelector("span").textContent;
+            googleBtn.querySelector("span").textContent = "Connecting...";
+
+            try {
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                const idToken = await result.user.getIdToken();
+
+                // Call GoogleLogin backend endpoint
+                const response = await fetch("/Account/GoogleLogin", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ idToken: idToken })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = data.redirectUrl || "/Dashboard";
+                } else {
+                    showError(data.message || "Google Sign-In failed on backend.");
+                    googleBtn.disabled = false;
+                    googleBtn.style.opacity = "1";
+                    googleBtn.querySelector("span").textContent = originalGoogleText;
+                }
+            } catch (error) {
+                console.error("Google auth error:", error);
+                let msg = "Google Sign-In was cancelled or failed.";
+                if (error.code === "auth/popup-blocked") {
+                    msg = "Pop-up blocked by browser. Please enable pop-ups for BookBridge.";
+                }
+                showError(msg);
+                googleBtn.disabled = false;
+                googleBtn.style.opacity = "1";
+                googleBtn.querySelector("span").textContent = originalGoogleText;
+            }
+        });
+    </script>
+
+    <style>
+        .spin {
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        #googleSignInBtn:hover {
+            background-color: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+    </style>
+
+</body>
+</html>
